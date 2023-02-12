@@ -1,22 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import RoadmapView from '@/views/RoadmapView.vue';
+import DashboardView from '@/views/DashboardView.vue';
 
 const routes = [
   {
     path: '/',
-    name: 'home',
-    component: RoadmapView,
+    name: 'dashboard',
+    component: DashboardView,
   },
   {
-    path: '/about',
-    name: 'about',
-    component: RoadmapView,
+    path: '/roadmaps/:id',
+    name: 'roadmap',
+    component: () => import('../views/RoadmapView.vue'),
   },
-  // {
-  //   path: "/about",
-  //   name: "about",
-  //   component: () => import("../views/AboutView.vue"),
-  // },
 ];
 
 const router = createRouter({

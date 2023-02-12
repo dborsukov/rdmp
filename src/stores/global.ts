@@ -1,7 +1,8 @@
 import { ref, watch } from 'vue';
 import { defineStore } from 'pinia';
+import type { Roadmap } from '@/helpers';
 
-export const useUiStore = defineStore('ui', () => {
+export const useGlobalStore = defineStore('global', () => {
   const sidebarExpanded = ref(true);
   function toggleSidebar() {
     sidebarExpanded.value = !sidebarExpanded.value;
@@ -22,10 +23,13 @@ export const useUiStore = defineStore('ui', () => {
     classlist.remove('dark');
   });
 
+  const roadmaps = ref<Roadmap[]>([]);
+
   return {
     sidebarExpanded,
     toggleSidebar,
     darkThemeSelected,
     toggleDarkTheme,
+    roadmaps,
   };
 });
