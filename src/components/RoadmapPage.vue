@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { watch, onMounted } from 'vue';
+import { watch, onMounted, createApp } from 'vue';
+import RoadmapNode from './RoadmapNode.vue';
 import type { Node } from '@/helpers';
 
 const props = defineProps({
@@ -35,10 +36,9 @@ function buildTree(nodes: Array<Node>, root_el: HTMLElement) {
     flexWrapper.classList.add('my-flex');
 
     let mainSubjectDiv = document.createElement('div');
-    mainSubjectDiv.classList.add('node');
-    mainSubjectDiv.innerHTML = node.title;
-    mainSubjectDiv.setAttribute('data-node-id', node.id.toString());
     flexWrapper.appendChild(mainSubjectDiv);
+    const vueNode = createApp({ extends: RoadmapNode }, { id: node.id, title: node.title });
+    vueNode.mount(mainSubjectDiv);
 
     let childrenFlexColWrapper = document.createElement('div');
     childrenFlexColWrapper.classList.add('my-flex-col');
@@ -175,16 +175,6 @@ function drawPath(fromElem: Element, toElem: Element) {
 
 #svg path {
   fill: none;
-}
-
-#root .node {
-  padding: 5px;
-  max-width: 200px;
-  text-align: center;
-  font-weight: bold;
-  border: 2px solid green;
-  border-radius: 4px;
-  background-color: rgba(0, 155, 0, 0.3);
 }
 
 #root .my-flex {
