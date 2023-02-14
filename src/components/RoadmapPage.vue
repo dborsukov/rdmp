@@ -37,7 +37,10 @@ function buildTree(nodes: Array<Node>, root_el: HTMLElement) {
 
     let mainSubjectDiv = document.createElement('div');
     flexWrapper.appendChild(mainSubjectDiv);
-    const vueNode = createApp({ extends: RoadmapNode }, { id: node.id, title: node.title });
+    const vueNode = createApp(
+      { extends: RoadmapNode },
+      { id: node.id, title: node.title, description: node.description }
+    );
     vueNode.mount(mainSubjectDiv);
 
     let childrenFlexColWrapper = document.createElement('div');
@@ -119,18 +122,28 @@ function drawPath(fromElem: Element, toElem: Element) {
   if (fromRect.x == toRect.x) {
     let line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.classList.add('connection');
-    line.setAttribute('x1', (fromRect.x + fromRect.width / 2).toString());
-    line.setAttribute('x2', (toRect.x + toRect.width / 2).toString());
+    if (fromRect.width < toRect.width) {
+      line.setAttribute('x1', (fromRect.x + fromRect.width / 2).toString());
+      line.setAttribute('x2', (fromRect.x + fromRect.width / 2).toString());
+    } else {
+      line.setAttribute('x1', (toRect.x + toRect.width / 2).toString());
+      line.setAttribute('x2', (toRect.x + toRect.width / 2).toString());
+    }
     line.setAttribute('y1', (fromRect.y + fromRect.height).toString());
     line.setAttribute('y2', toRect.y.toString());
     svg.appendChild(line);
-  } else if (fromRect.height == toRect.height && fromRect.y == toRect.y) {
+  } else if (fromRect.y == toRect.y) {
     let line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.classList.add('connection');
     line.setAttribute('x1', (fromRect.x + fromRect.width).toString());
     line.setAttribute('x2', toRect.x.toString());
-    line.setAttribute('y1', (fromRect.y + fromRect.height / 2).toString());
-    line.setAttribute('y2', (toRect.y + toRect.height / 2).toString());
+    if (fromRect.height < toRect.height) {
+      line.setAttribute('y1', (fromRect.y + fromRect.height / 2).toString());
+      line.setAttribute('y2', (fromRect.y + fromRect.height / 2).toString());
+    } else {
+      line.setAttribute('y1', (toRect.y + toRect.height / 2).toString());
+      line.setAttribute('y2', (toRect.y + toRect.height / 2).toString());
+    }
     svg.appendChild(line);
   } else {
     let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -164,12 +177,17 @@ function drawPath(fromElem: Element, toElem: Element) {
 
 <template>
   <svg id="svg" class="absolute" width="0" height="0"></svg>
-  <main class="flex h-full w-full flex-col gap-5" id="root"></main>
+  <main class="flex h-full w-full flex-col gap-10 p-10" id="root"></main>
 </template>
 
 <style>
+html.dark #svg .connection {
+  stroke: #404040;
+  stroke-width: 0.1em;
+}
+
 #svg .connection {
-  stroke: red;
+  stroke: #d4d4d4;
   stroke-width: 0.1em;
 }
 
