@@ -37,11 +37,15 @@ function buildTree(nodes: Array<Node>, root_el: HTMLElement) {
 
     let mainSubjectDiv = document.createElement('div');
     flexWrapper.appendChild(mainSubjectDiv);
-    const vueNode = createApp(
-      { extends: RoadmapNode },
-      { id: node.id, title: node.title, description: node.description }
-    );
-    vueNode.mount(mainSubjectDiv);
+    mount(RoadmapNode, {
+      props: {
+        id: node.id,
+        title: node.title,
+        description: node.description,
+        isMainNode: node.isMainNode,
+      },
+      element: flexWrapper,
+    });
 
     let childrenFlexColWrapper = document.createElement('div');
     childrenFlexColWrapper.classList.add('my-flex-col');
