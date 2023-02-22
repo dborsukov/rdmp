@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref, type Ref } from 'vue';
+import { onMounted, onBeforeUnmount, ref } from 'vue';
+import { useClickOutside } from '@/composables';
 
 const props = defineProps({
   menuId: { type: String, required: true },
@@ -13,24 +14,6 @@ defineExpose({ open });
 const active = ref(false);
 
 const item = ref();
-
-function useClickOutside(target_ref: Ref<HTMLElement>, callback: Function) {
-  if (!target_ref) return;
-
-  let listener = (e: MouseEvent) => {
-    if (e.target == target_ref.value || e.composedPath().includes(target_ref.value)) {
-      return;
-    }
-    callback();
-  };
-
-  onMounted(() => {
-    window.addEventListener('click', listener);
-  });
-  onBeforeUnmount(() => {
-    window.removeEventListener('click', listener);
-  });
-}
 
 const menu = ref();
 
