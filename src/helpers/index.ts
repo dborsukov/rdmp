@@ -1,56 +1,61 @@
-export type Node = {
-  id: number;
-  title: string;
-  description: string;
-  children: Array<Node>;
-};
+import { useGlobalStore } from '@/stores/global';
+import { invoke } from '@tauri-apps/api/tauri';
+import { cloneDeep } from 'lodash';
 
 export type Roadmap = {
-  id: number;
+  uuid: string;
   title: string;
+  description: string;
   nodes: Array<Node>;
 };
 
-export function loadAllRoadmaps(): Array<Roadmap> {
-  // placeholder for testing
-  return [
-    {
-      id: 1,
-      title: 'Roadmap 1',
-      nodes: [
-        {
-          id: 3,
-          title: 'Main 1',
-          description: '',
-          children: [
-            { id: 10, title: 'Sub 1', description: 'Do this and that', children: [] },
-            { id: 11, title: 'Sub 2', description: 'Simple description', children: [] },
-          ],
-        },
-        {
-          id: 4,
-          title: 'Main 2',
-          description: 'Very important step! Make sure to follow this one!',
-          children: [],
-        },
-        { id: 5, title: 'Main 3', description: '', children: [] },
-      ],
-    },
-    {
-      id: 2,
-      title: 'Roadmap 2',
-      nodes: [
-        { id: 6, title: 'Main 1', description: '', children: [] },
-        {
-          id: 7,
-          title: 'Main 2',
-          description: '',
-          children: [{ id: 9, title: 'Sub 1', description: '', children: [] }],
-        },
-        { id: 8, title: 'Main 3', description: '', children: [] },
-      ],
-    },
-  ];
+export type Node = {
+  uuid: string;
+  title: string;
+  description: string;
+  isMainNode: boolean;
+  children: Array<Node>;
+};
+
+export function loadAllRoadmaps() {
+  const store = useGlobalStore();
+  invoke<Roadmap[]>('load_all_roadmaps')
+    .then((result) => {
+      store.roadmaps = cloneDeep(result);
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+}
+
+export function addRoadmap(roadmap: Roadmap) {
+  invoke<null>('add_roadmap', { roadmap: roadmap })
+    .then(() => {
+      loadAllRoadmaps();
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+}
+
+export function updateRoadmap(roadmap: Roadmap) {
+  invoke<null>('update_roadmap', { roadmap: roadmap })
+    .then(() => {
+      loadAllRoadmaps();
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+}
+
+export function removeRoadmap(uuid: String) {
+  invoke<null>('remove_roadmap', { queryUuid: uuid })
+    .then(() => {
+      loadAllRoadmaps();
+    })
+    .catch((e) => {
+      console.log(e);
+    });
 }
 
 export {};

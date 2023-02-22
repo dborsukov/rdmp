@@ -1,24 +1,21 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useGlobalStore } from '@/stores/global';
-import Roadmap from '@/components/RoadmapPage.vue';
+import Roadmap from '@/components/TheRoadmap.vue';
 
 const route = useRoute();
-const store = useGlobalStore();
-
-const id = ref(route.params.id as string);
-const nodes = ref(store.roadmaps.filter((map) => map.id.toString() == id.value)[0].nodes);
+const uuid = ref(route.params.uuid as string);
 
 watch(
-  () => route.params.id,
+  () => route.params.uuid,
   () => {
-    id.value = route.params.id as string;
-    nodes.value = store.roadmaps.filter((map) => map.id.toString() == id.value)[0].nodes;
+    uuid.value = route.params.uuid as string;
   }
 );
 </script>
 
 <template>
-  <Roadmap :nodes="nodes" />
+  <div class="p-10">
+    <Roadmap :roadmapUUID="uuid" :nodes="[]" />
+  </div>
 </template>

@@ -1,32 +1,93 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useGlobalStore } from '@/stores/global';
-import { loadAllRoadmaps } from '@/helpers';
+import { loadAllRoadmaps, removeRoadmap, type Roadmap } from '@/helpers';
+import Label from '@/components/VLabel.vue';
 import Link from '@/components/SidebarLink.vue';
+import IconPlus from '@/components/icons/IconPlus.vue';
+import RoadmapModal from '@/components/RoadmapModal.vue';
+import ContextMenu from '@/components/ContextMenu.vue';
+import ModalConfirm from '@/components/ModalConfirm.vue';
 
+const router = useRouter();
 const store = useGlobalStore();
 
 onMounted(() => {
-  store.roadmaps = loadAllRoadmaps();
+  loadAllRoadmaps();
 });
+
+const context = ref<typeof ContextMenu>();
+
+function showContextMenu(event: MouseEvent, item: any) {
+  context?.value?.open(event, item);
+}
+
+const modal = ref<typeof RoadmapModal>();
+
+function showRoadmapModal(type: string, roadmap: Roadmap | null) {
+  modal?.value?.open(type, roadmap);
+}
+
+const modalConfirm = ref<typeof ModalConfirm>();
+
+const options = ['Edit', 'Delete'];
+
+async function handleOption(op: string, roadmap: Roadmap) {
+  switch (op) {
+    case 'Edit': {
+      showRoadmapModal('edit', roadmap);
+      break;
+    }
+    case 'Delete': {
+      const ok = await modalConfirm?.value?.show({
+        title: 'Delete',
+        message: `Are you sure you want to delete "${roadmap.title}"?`,
+        okButton: 'Delete',
+        cancelButton: 'Cancel',
+      });
+      if (ok) {
+        router.push('/');
+        removeRoadmap(roadmap.uuid);
+        break;
+      }
+    }
+  }
+}
 </script>
 
 <template>
+  <ContextMenu
+    menu-id="roadmapMenu"
+    ref="context"
+    :options="options"
+    @handle-option="handleOption"
+  />
+  <ModalConfirm ref="modalConfirm" />
+  <RoadmapModal ref="modal" />
   <div
     v-show="store.sidebarExpanded"
-    class="flex w-64 flex-shrink-0 flex-col bg-white text-black dark:bg-neutral-800 dark:text-neutral-50"
+    class="flex h-full w-64 flex-shrink-0 flex-col gap-y-2 border-r border-neutral-200 bg-white p-4 text-black dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50"
   >
-    <div class="relative flex-1">
-      <div
-        class="absolute top-0 right-0 left-0 bottom-0 flex flex-col gap-y-2 overflow-auto border-r border-neutral-200 p-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-neutral-300 dark:border-neutral-700 dark:scrollbar-thumb-neutral-700"
+    <Label>Home</Label>
+    <Link to="/">Dashboard</Link>
+    <Label>Roadmaps</Label>
+    <div
+      class="flex flex-grow flex-col gap-y-2 overflow-auto rounded-lg border border-neutral-200 p-2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-50"
+    >
+      <Link
+        v-for="roadmap in store.roadmaps"
+        :key="roadmap.uuid"
+        :to="`/roadmaps/${roadmap.uuid}`"
+        @contextmenu.prevent="showContextMenu($event, roadmap)"
+        >{{ roadmap.title }}</Link
       >
-        <p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Home</p>
-        <Link to="/">Dashboard</Link>
-        <p class="text-sm font-bold text-neutral-400 dark:text-neutral-500">Roadmaps</p>
-        <Link v-for="roadmap in store.roadmaps" :key="roadmap.id" :to="`/roadmaps/${roadmap.id}`">{{
-          roadmap.title
-        }}</Link>
-      </div>
     </div>
+    <button
+      class="flex h-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-lg border border-neutral-200 hover:bg-emerald-500/30 active:bg-emerald-500/40 dark:border-neutral-700 dark:hover:bg-neutral-700 dark:active:bg-neutral-900"
+      @click="showRoadmapModal('create', null)"
+    >
+      <IconPlus class="m-auto h-5 w-5" />
+    </button>
   </div>
 </template>

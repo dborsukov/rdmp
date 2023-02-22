@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { watch, onMounted, createApp } from 'vue';
+import { watch, onMounted } from 'vue';
 import RoadmapNode from './RoadmapNode.vue';
 import type { Node } from '@/helpers';
+import { mount } from 'mount-vue-component';
 
 const props = defineProps({
+  roadmapUUID: { type: String, required: true },
   nodes: { type: Array<Node>, required: true },
 });
 
@@ -39,7 +41,7 @@ function buildTree(nodes: Array<Node>, root_el: HTMLElement) {
     flexWrapper.appendChild(mainSubjectDiv);
     mount(RoadmapNode, {
       props: {
-        id: node.id,
+        id: node.uuid,
         title: node.title,
         description: node.description,
         isMainNode: node.isMainNode,
@@ -69,8 +71,8 @@ function redrawSvg(nodes: Array<Node>) {
 
 function drawMain(nodes: Array<Node>) {
   nodes.forEach((_, i) => {
-    let currentNode = document.querySelector(`[data-node-id='${nodes[i]?.id}']`);
-    let followingNode = document.querySelector(`[data-node-id='${nodes[i + 1]?.id}']`);
+    let currentNode = document.querySelector(`[data-node-id='${nodes[i]?.uuid}']`);
+    let followingNode = document.querySelector(`[data-node-id='${nodes[i + 1]?.uuid}']`);
     if (followingNode != null && currentNode != null) {
       drawPath(currentNode, followingNode);
     }
@@ -80,8 +82,8 @@ function drawMain(nodes: Array<Node>) {
 function drawSubs(nodes: Array<Node>) {
   nodes.forEach((node) => {
     node.children.forEach((child) => {
-      let parentNode = document.querySelector(`[data-node-id='${node.id}']`);
-      let childNode = document.querySelector(`[data-node-id='${child.id}']`);
+      let parentNode = document.querySelector(`[data-node-id='${node.uuid}']`);
+      let childNode = document.querySelector(`[data-node-id='${child.uuid}']`);
       if (parentNode != null && childNode != null) {
         drawPath(parentNode, childNode);
       }
