@@ -28,6 +28,9 @@
     padding: 0;
     margin: 0;
   }
+  *:focus {
+    outline: none;
+  }
   html {
     -webkit-user-select: none;
     -ms-user-select: none;
