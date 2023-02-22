@@ -8,7 +8,7 @@ const routes = [
     component: DashboardView,
   },
   {
-    path: '/roadmaps/:id',
+    path: '/roadmaps/:uuid',
     name: 'roadmap',
     component: () => import('../views/RoadmapView.vue'),
   },
