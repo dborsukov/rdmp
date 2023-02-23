@@ -28,10 +28,13 @@ const hoveringNode = ref(false);
     />
     <div
       :data-node-id="uuid"
-      class="rounded-md border-2 border-neutral-300 p-3 dark:border-neutral-700 dark:bg-neutral-800"
+      :class="{
+        'border-dashed bg-transparent dark:bg-transparent': nodeType == 'root',
+      }"
+      class="rounded-md border-2 border-neutral-300 px-3 py-1 dark:border-neutral-700 dark:bg-neutral-800"
     >
       <p class="font-bold">{{ title }}</p>
-      <p class="dark:text-neutral-400">{{ description }}</p>
+      <p v-if="description" class="dark:text-neutral-400">{{ description }}</p>
     </div>
   </div>
 </template>

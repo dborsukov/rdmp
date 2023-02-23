@@ -94,8 +94,10 @@ function buildTree(nodes: Array<Node>, root_el: HTMLElement) {
         nodeType: node.nodeType,
         onCreateNode: showRoadmapNodeModal,
         oncontextmenu: (e: MouseEvent) => {
-          e.preventDefault();
-          showContextMenu(e, node);
+          if (node.nodeType != 'root') {
+            e.preventDefault();
+            showContextMenu(e, node);
+          }
         },
       },
       element: flexWrapper,
