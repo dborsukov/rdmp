@@ -14,6 +14,8 @@ export type Node = {
   title: string;
   description: string;
   nodeType: string;
+  done: boolean;
+  skip: boolean;
   children: Array<Node>;
 };
 
@@ -88,4 +90,17 @@ export function removeNode(uuid: String): Promise<null> {
   });
 }
 
+export function setDone(uuid: String, done: boolean): Promise<null> {
+  return invoke<null>('set_done', {
+    queryUuid: uuid,
+    queryDone: done,
+  });
+}
+
+export function setSkip(uuid: String, skip: boolean): Promise<null> {
+  return invoke<null>('set_skip', {
+    queryUuid: uuid,
+    querySkip: skip,
+  });
+}
 export {};

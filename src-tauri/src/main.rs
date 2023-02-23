@@ -27,6 +27,8 @@ fn main() {
             cmd::add_node,
             cmd::update_node,
             cmd::remove_node,
+            cmd::set_done,
+            cmd::set_skip,
         ])
         .run(tauri::generate_context!())
     {

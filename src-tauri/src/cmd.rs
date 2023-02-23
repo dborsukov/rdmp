@@ -21,6 +21,8 @@ pub struct Node {
     description: String,
     #[serde(rename(serialize = "nodeType", deserialize = "nodeType"))]
     node_type: String,
+    done: bool,
+    skip: bool,
     children: Vec<Node>,
 }
 
@@ -94,6 +96,8 @@ fn get_main_nodes(conn: &mut SqliteConnection, map: &models::Roadmap) -> Result<
             title: node.title.clone(),
             description: node.description.clone(),
             node_type: node.node_type.clone(),
+            done: node.done,
+            skip: node.skip,
             children: get_child_nodes(conn, &node)?,
         })
     }
@@ -122,6 +126,8 @@ fn get_child_nodes(conn: &mut SqliteConnection, node: &models::Node) -> Result<V
             title: node.title.clone(),
             description: node.description.clone(),
             node_type: node.node_type.clone(),
+            done: node.done,
+            skip: node.skip,
             children: get_child_nodes(conn, &node)?,
         })
     }
@@ -175,6 +181,8 @@ pub fn add_node(
         title: node.title,
         description: node.description,
         node_type: node.node_type,
+        done: false,
+        skip: false,
         parent_node: parent_node_uuid,
         roadmap_uuid: query_roadmap_uuid,
     };
@@ -203,6 +211,32 @@ pub fn remove_node(query_uuid: &str) -> Result<(), String> {
     let conn = &mut establish_connection();
     if let Err(err) = diesel::delete(nodes.filter(uuid.eq(query_uuid))).execute(conn) {
         return Err(format!("Failed to delete node: {err}"));
+    }
+    Ok(())
+}
+
+#[command]
+pub fn set_done(query_uuid: &str, query_done: bool) -> Result<(), String> {
+    use crate::schema::nodes::dsl::*;
+    let conn = &mut establish_connection();
+    if let Err(err) = diesel::update(nodes.find(query_uuid))
+        .set((done.eq(query_done), skip.eq(false)))
+        .execute(conn)
+    {
+        return Err(format!("Failed to update node: {err}"));
+    }
+    Ok(())
+}
+
+#[command]
+pub fn set_skip(query_uuid: &str, query_skip: bool) -> Result<(), String> {
+    use crate::schema::nodes::dsl::*;
+    let conn = &mut establish_connection();
+    if let Err(err) = diesel::update(nodes.find(query_uuid))
+        .set((skip.eq(query_skip), done.eq(false)))
+        .execute(conn)
+    {
+        return Err(format!("Failed to update node: {err}"));
     }
     Ok(())
 }

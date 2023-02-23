@@ -14,6 +14,8 @@ diesel::table! {
         title -> Text,
         description -> Text,
         node_type -> Text,
+        done -> Bool,
+        skip -> Bool,
         parent_node -> Nullable<Text>,
         roadmap_uuid -> Text,
     }

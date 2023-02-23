@@ -9,6 +9,8 @@ const props = defineProps({
   title: { type: String, required: true },
   description: { type: String, required: true },
   nodeType: { type: String, required: true },
+  done: { type: Boolean, required: true },
+  skip: { type: Boolean, required: true },
 });
 
 const hoveringNode = ref(false);
@@ -30,11 +32,23 @@ const hoveringNode = ref(false);
       :data-node-id="uuid"
       :class="{
         'border-dashed bg-transparent dark:bg-transparent': nodeType == 'root',
+        'border-emerald-400 bg-emerald-200 dark:border-emerald-400 dark:bg-emerald-800': done,
+        'border-dashed border-yellow-500 bg-transparent text-neutral-900/30 dark:border-yellow-400/50 dark:bg-transparent dark:text-neutral-50/30':
+          skip,
       }"
-      class="rounded-md border-2 border-neutral-300 px-3 py-1 dark:border-neutral-700 dark:bg-neutral-800"
+      class="max-w-xs rounded-md border-2 border-neutral-300 px-3 py-1 dark:border-neutral-700 dark:bg-neutral-800"
     >
       <p class="font-bold">{{ title }}</p>
-      <p v-if="description" class="dark:text-neutral-400">{{ description }}</p>
+      <p
+        v-if="description"
+        :class="{
+          'text-neutral-900/80 dark:text-neutral-50/80': done,
+          'text-neutral-900/30 dark:text-neutral-50/30': skip,
+        }"
+        class="dark:text-neutral-50/50"
+      >
+        {{ description }}
+      </p>
     </div>
   </div>
 </template>

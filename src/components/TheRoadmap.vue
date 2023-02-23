@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { mount } from 'mount-vue-component';
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
-import { loadRoadmap, removeNode, type Node } from '@/helpers';
+import { loadRoadmap, removeNode, setDone, setSkip, type Node } from '@/helpers';
 import RoadmapNode from '@/components/RoadmapNode.vue';
 import RoadmapNodeModal from '@/components/RoadmapNodeModal.vue';
 import ModalConfirm from '@/components/ModalConfirm.vue';
@@ -41,19 +41,32 @@ function showRoadmapNodeModal(
   modal?.value?.open(action, existingNode, nodeType, parentNodeUuid, props.roadmapUuid);
 }
 
-function showContextMenu(event: MouseEvent, item: any) {
-  context?.value?.open(event, item);
+function showContextMenu(event: MouseEvent, item: any, options: Object[]) {
+  context?.value?.open(event, item, options);
 }
-
-const options = ['Edit', 'Delete'];
-
-async function handleOption(option: string, node: Node) {
-  switch (option) {
-    case 'Edit': {
+async function handleOption(optionAction: string, node: Node) {
+  switch (optionAction) {
+    case 'edit': {
       showRoadmapNodeModal('edit', node, node.nodeType, null);
       break;
     }
-    case 'Delete': {
+    case 'setDoneTrue': {
+      setDone(node.uuid, true).then(render);
+      break;
+    }
+    case 'setDoneFalse': {
+      setDone(node.uuid, false).then(render);
+      break;
+    }
+    case 'setSkipTrue': {
+      setSkip(node.uuid, true).then(render);
+      break;
+    }
+    case 'setSkipFalse': {
+      setDone(node.uuid, false).then(render);
+      break;
+    }
+    case 'delete': {
       const ok = await modalConfirm?.value?.show({
         title: 'Delete',
         message: `Are you sure you want to delete "${node.title}"?`,
@@ -92,11 +105,20 @@ function buildTree(nodes: Array<Node>, root_el: HTMLElement) {
         title: node.title,
         description: node.description,
         nodeType: node.nodeType,
+        done: node.done,
+        skip: node.skip,
         onCreateNode: showRoadmapNodeModal,
         oncontextmenu: (e: MouseEvent) => {
           if (node.nodeType != 'root') {
             e.preventDefault();
-            showContextMenu(e, node);
+            showContextMenu(e, node, [
+              { name: 'Edit', action: 'edit' },
+              { name: '|', action: '' },
+              { name: 'Done', action: node.done ? 'setDoneFalse' : 'setDoneTrue' },
+              { name: 'Skip', action: node.skip ? 'setSkipFalse' : 'setSkipTrue' },
+              { name: '|', action: '' },
+              { name: 'Delete', action: 'delete' },
+            ]);
           }
         },
       },
@@ -236,12 +258,7 @@ function drawPath(fromElem: Element, toElem: Element) {
 </script>
 
 <template>
-  <ContextMenu
-    ref="context"
-    menu-id="roadmapNodeMenu"
-    :options="options"
-    @handle-option="handleOption"
-  />
+  <ContextMenu ref="context" menu-id="roadmapNodeMenu" @handle-option="handleOption" />
   <ModalConfirm ref="modalConfirm" />
   <RoadmapNodeModal ref="modal" @tree-changed="render" />
   <svg id="svg" class="absolute" width="0" height="0"></svg>

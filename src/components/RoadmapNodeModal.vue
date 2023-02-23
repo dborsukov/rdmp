@@ -17,6 +17,8 @@ const modalUuid = ref('');
 const modalTitle = ref('');
 const modalDescription = ref('');
 const modalNodeType = ref('');
+const modalDone = ref(false);
+const modalSkip = ref(false);
 const modalParentNodeUuid = ref<String | null>('');
 const modalRoadmapUuid = ref('');
 
@@ -39,6 +41,8 @@ function open(
     modalTitle.value = existingNode.title;
     modalDescription.value = existingNode.description;
     modalNodeType.value = existingNode.nodeType;
+    modalDone.value = existingNode.done;
+    modalSkip.value = existingNode.skip;
   }
 
   modalBase?.value?.open();
@@ -63,6 +67,8 @@ async function confirm() {
         title: modalTitle.value,
         description: modalDescription.value,
         nodeType: modalNodeType.value,
+        done: false,
+        skip: false,
         children: [],
       },
       modalParentNodeUuid.value,
@@ -77,6 +83,8 @@ async function confirm() {
       title: modalTitle.value,
       description: modalDescription.value,
       nodeType: modalNodeType.value,
+      done: modalDone.value,
+      skip: modalSkip.value,
       children: [],
     }).then(() => {
       emit('tree-changed');

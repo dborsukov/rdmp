@@ -27,6 +27,10 @@ pub struct Node {
     pub description: String,
     #[diesel(sql_type=Text)]
     pub node_type: String,
+    #[diesel(sql_type=Boolean)]
+    pub done: bool,
+    #[diesel(sql_type=Boolean)]
+    pub skip: bool,
     #[diesel(sql_type=Nullable<Text>)]
     pub parent_node: Option<String>,
     #[diesel(sql_type=Text)]
