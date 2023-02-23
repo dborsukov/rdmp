@@ -25,8 +25,8 @@ function open(event: MouseEvent, it: any) {
   let menu = document.getElementById(props.menuId);
   if (!menu) return;
 
-  menu.style.left = event.pageX + 'px';
-  menu.style.top = event.pageY + 'px';
+  menu.style.left = event.screenX + 'px';
+  menu.style.top = event.screenY + 'px';
 
   active.value = true;
 }
@@ -59,17 +59,19 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div :id="menuId" ref="menu" v-show="active" class="absolute z-50 w-40">
-    <div
-      class="flex flex-col gap-y-2 rounded-lg border bg-white p-2 shadow-lg dark:border-neutral-700 dark:bg-neutral-800"
-    >
-      <div v-for="(op, index) in options" :key="index" @click.stop="optionClicked(op)">
-        <button
-          class="w-full rounded-md px-2 py-1 text-left text-sm text-black hover:bg-neutral-200 active:bg-neutral-300 dark:text-neutral-50 dark:hover:bg-neutral-700 dark:active:bg-neutral-900"
-        >
-          {{ op }}
-        </button>
+  <Teleport to="body">
+    <div :id="menuId" ref="menu" v-show="active" class="absolute z-50 w-40">
+      <div
+        class="flex flex-col gap-y-2 rounded-lg border bg-white p-2 shadow-lg dark:border-neutral-700 dark:bg-neutral-800"
+      >
+        <div v-for="(op, index) in options" :key="index" @click.stop="optionClicked(op)">
+          <button
+            class="w-full rounded-md px-2 py-1 text-left text-sm text-black hover:bg-neutral-200 active:bg-neutral-300 dark:text-neutral-50 dark:hover:bg-neutral-700 dark:active:bg-neutral-900"
+          >
+            {{ op }}
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  </Teleport>
 </template>
