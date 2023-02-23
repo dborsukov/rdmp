@@ -24,6 +24,9 @@ fn main() {
             cmd::add_roadmap,
             cmd::update_roadmap,
             cmd::remove_roadmap,
+            cmd::add_node,
+            cmd::update_node,
+            cmd::remove_node,
         ])
         .run(tauri::generate_context!())
     {

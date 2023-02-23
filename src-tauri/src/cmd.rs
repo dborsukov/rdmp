@@ -19,8 +19,8 @@ pub struct Node {
     uuid: String,
     title: String,
     description: String,
-    #[serde(rename(serialize = "isMainNode", deserialize = "isMainNode"))]
-    is_main_node: bool,
+    #[serde(rename(serialize = "nodeType", deserialize = "nodeType"))]
+    node_type: String,
     children: Vec<Node>,
 }
 
@@ -78,8 +78,7 @@ fn get_main_nodes(conn: &mut SqliteConnection, map: &models::Roadmap) -> Result<
     let mut main_nodes = Vec::new();
 
     let results = match models::Node::belonging_to(map)
-        .filter(is_main_node.eq(true))
-        .order(node_order.asc())
+        .filter(node_type.eq("main").or(node_type.eq("root")))
         .load::<models::Node>(conn)
     {
         Ok(list) => list,
@@ -94,7 +93,7 @@ fn get_main_nodes(conn: &mut SqliteConnection, map: &models::Roadmap) -> Result<
             uuid: node.uuid.clone(),
             title: node.title.clone(),
             description: node.description.clone(),
-            is_main_node: node.is_main_node.clone(),
+            node_type: node.node_type.clone(),
             children: get_child_nodes(conn, &node)?,
         })
     }
@@ -108,7 +107,6 @@ fn get_child_nodes(conn: &mut SqliteConnection, node: &models::Node) -> Result<V
 
     let results = match nodes
         .filter(parent_node.eq(&node.uuid))
-        .order(node_order.asc())
         .load::<models::Node>(conn)
     {
         Ok(list) => list,
@@ -123,7 +121,7 @@ fn get_child_nodes(conn: &mut SqliteConnection, node: &models::Node) -> Result<V
             uuid: node.uuid.clone(),
             title: node.title.clone(),
             description: node.description.clone(),
-            is_main_node: node.is_main_node.clone(),
+            node_type: node.node_type.clone(),
             children: get_child_nodes(conn, &node)?,
         })
     }
@@ -160,5 +158,49 @@ pub fn remove_roadmap(query_uuid: &str) -> Result<(), String> {
     diesel::delete(maps.filter(uuid.eq(query_uuid)))
         .execute(conn)
         .expect("failed to delete roadmap");
+    Ok(())
+}
+
+#[command]
+pub fn add_node(
+    node: Node,
+    parent_node_uuid: Option<String>,
+    query_roadmap_uuid: String,
+) -> Result<(), String> {
+    use crate::schema::nodes::dsl::*;
+    let conn = &mut establish_connection();
+    let node_model = models::Node {
+        uuid: node.uuid,
+        title: node.title,
+        description: node.description,
+        node_type: node.node_type,
+        parent_node: parent_node_uuid,
+        roadmap_uuid: query_roadmap_uuid,
+    };
+    diesel::insert_into(nodes)
+        .values(node_model)
+        .execute(conn)
+        .expect("failed to insert node");
+    Ok(())
+}
+
+#[command]
+pub fn update_node(node: Node) -> Result<(), String> {
+    use crate::schema::nodes::dsl::*;
+    let conn = &mut establish_connection();
+    diesel::update(nodes.find(node.uuid))
+        .set((title.eq(node.title), description.eq(node.description)))
+        .execute(conn)
+        .expect("failed to update node");
+    Ok(())
+}
+
+#[command]
+pub fn remove_node(query_uuid: &str) -> Result<(), String> {
+    use crate::schema::nodes::dsl::*;
+    let conn = &mut establish_connection();
+    diesel::delete(nodes.filter(uuid.eq(query_uuid)))
+        .execute(conn)
+        .expect("failed to delete node");
     Ok(())
 }

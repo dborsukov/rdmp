@@ -3,7 +3,10 @@ import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import { mount } from 'mount-vue-component';
 import RoadmapNode from './RoadmapNode.vue';
 import type { Node } from '@/helpers';
-import { addNode, loadRoadmap } from '@/helpers';
+import { loadRoadmap, removeNode } from '@/helpers';
+import RoadmapNodeModal from '@/components/RoadmapNodeModal.vue';
+import ContextMenu from '@/components/ContextMenu.vue';
+import ModalConfirm from '@/components/ModalConfirm.vue';
 
 const nodes = ref<Array<Node>>([]);
 
@@ -12,6 +15,50 @@ const props = defineProps({
 });
 
 watch(() => props.roadmapUUID, render);
+
+const modal = ref<typeof RoadmapNodeModal>();
+
+function showRoadmapNodeModal(
+  modalType: string,
+  existingNode: Node | null,
+  nodeType: String,
+  parentNodeUUID: string | null
+) {
+  modal?.value?.open(modalType, existingNode, nodeType, parentNodeUUID, props.roadmapUUID);
+}
+
+const context = ref<typeof ContextMenu>();
+
+function showContextMenu(event: MouseEvent, item: any) {
+  context?.value?.open(event, item);
+}
+
+const modalConfirm = ref<typeof ModalConfirm>();
+
+const options = ['Edit', 'Delete'];
+
+async function handleOption(op: string, node: Node) {
+  console.log('received option: ', op);
+  switch (op) {
+    case 'Edit': {
+      showRoadmapNodeModal('edit', node, node.nodeType, null);
+      break;
+    }
+    case 'Delete': {
+      console.log('calling confirm modal');
+      const ok = await modalConfirm?.value?.show({
+        title: 'Delete',
+        message: `Are you sure you want to delete "${node.title}"?`,
+        okButton: 'Delete',
+        cancelButton: 'Cancel',
+      });
+      if (ok) {
+        removeNode(node.uuid).then(render);
+        break;
+      }
+    }
+  }
+}
 
 onMounted(() => {
   render();
@@ -48,7 +95,12 @@ function buildTree(nodes: Array<Node>, root_el: HTMLElement) {
         uuid: node.uuid,
         title: node.title,
         description: node.description,
-        isMainNode: node.isMainNode,
+        nodeType: node.nodeType,
+        onCreateNode: showRoadmapNodeModal,
+        oncontextmenu: (e: MouseEvent) => {
+          e.preventDefault();
+          showContextMenu(e, node);
+        },
       },
       element: flexWrapper,
     });
@@ -190,6 +242,14 @@ function drawPath(fromElem: Element, toElem: Element) {
 </script>
 
 <template>
+  <ContextMenu
+    menu-id="roadmapNodeMenu"
+    ref="context"
+    :options="options"
+    @handle-option="handleOption"
+  />
+  <ModalConfirm ref="modalConfirm" />
+  <RoadmapNodeModal ref="modal" @tree-changed="render" />
   <svg id="svg" class="absolute" width="0" height="0"></svg>
   <main class="flex h-full w-full flex-col gap-10 p-10" id="root"></main>
 </template>

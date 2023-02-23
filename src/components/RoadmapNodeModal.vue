@@ -1,30 +1,44 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { v4 } from 'uuid';
-import { addNode, addRoadmap, updateRoadmap, loadAllRoadmaps, type Roadmap } from '@/helpers';
+import type { Node } from '@/helpers';
+import { addNode, updateNode } from '@/helpers';
 import Label from '@/components/VLabel.vue';
 import Input from '@/components/VInput.vue';
 import Button from '@/components/VButton.vue';
 import ModalBase from '@/components/ModalBase.vue';
-import { useRouter } from 'vue-router';
 
-const router = useRouter();
+const emit = defineEmits(['tree-changed']);
+
+const type = ref('');
 const modalBase = ref();
-const type = ref('create');
 const incompleteInfo = ref(false);
 
 const uuid = ref('');
 const title = ref('');
 const description = ref('');
+const nodeType_ = ref('');
+const parentNode = ref<String | null>('');
+const roadmap = ref('');
 
 defineExpose({ open });
 
-function open(type_: string, roadmap: Roadmap | null) {
-  type.value = type_;
-  if (roadmap) {
-    uuid.value = roadmap.uuid;
-    title.value = roadmap.title;
-    description.value = roadmap.description;
+function open(
+  modalType: string,
+  node: Node | null,
+  nodeType: string,
+  parentNodeUUID: string | null,
+  roadmapUUID: string
+) {
+  type.value = modalType;
+  parentNode.value = parentNodeUUID;
+  roadmap.value = roadmapUUID;
+  nodeType_.value = nodeType;
+  if (node) {
+    uuid.value = node.uuid;
+    title.value = node.title;
+    description.value = node.description;
+    nodeType_.value = node.nodeType;
   }
   modalBase?.value?.open();
 }
@@ -36,43 +50,37 @@ function close() {
   incompleteInfo.value = false;
 }
 
-function confirm() {
+async function confirm() {
   if (title.value.trim() == '' || description.value.trim() == '') {
     incompleteInfo.value = true;
     return;
   }
   if (type.value == 'create') {
-    let roadmapUUID = v4();
-    addRoadmap({
-      uuid: roadmapUUID,
-      title: title.value,
-      description: description.value,
-      nodes: [],
-    })
-      .then(() => {
-        addNode(
-          {
-            uuid: v4(),
-            title: 'Start',
-            description: '',
-            nodeType: 'root',
-            children: [],
-          },
-          null,
-          roadmapUUID
-        );
-      })
-      .then(() => {
-        loadAllRoadmaps();
-        router.push(`/roadmaps/${roadmapUUID}`);
-      });
+    console.log('created node.');
+    await addNode(
+      {
+        uuid: v4(),
+        title: title.value,
+        description: description.value,
+        nodeType: nodeType_.value,
+        children: [],
+      },
+      parentNode.value,
+      roadmap.value
+    ).then(() => {
+      emit('tree-changed');
+    });
   }
   if (type.value == 'edit') {
-    updateRoadmap({
+    console.log('edited node.');
+    await updateNode({
       uuid: uuid.value,
       title: title.value,
       description: description.value,
-      nodes: [],
+      nodeType: nodeType_.value,
+      children: [],
+    }).then(() => {
+      emit('tree-changed');
     });
   }
   close();

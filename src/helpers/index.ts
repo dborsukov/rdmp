@@ -13,7 +13,7 @@ export type Node = {
   uuid: string;
   title: string;
   description: string;
-  isMainNode: boolean;
+  nodeType: string;
   children: Array<Node>;
 };
 
@@ -40,14 +40,8 @@ export function loadAllRoadmaps() {
     });
 }
 
-export function addRoadmap(roadmap: Roadmap) {
-  invoke<null>('add_roadmap', { roadmap: roadmap })
-    .then(() => {
-      loadAllRoadmaps();
-    })
-    .catch((e) => {
-      console.log(e);
-    });
+export function addRoadmap(roadmap: Roadmap): Promise<null> {
+  return invoke<null>('add_roadmap', { roadmap: roadmap });
 }
 
 export function updateRoadmap(roadmap: Roadmap) {
@@ -68,6 +62,32 @@ export function removeRoadmap(uuid: String) {
     .catch((e) => {
       console.log(e);
     });
+}
+
+export function addNode(
+  node: Node,
+  parentNodeUUID: String | null,
+  roadmapUUID: String
+): Promise<null> {
+  return invoke<null>('add_node', {
+    node: node,
+    parentNodeUuid: parentNodeUUID,
+    queryRoadmapUuid: roadmapUUID,
+  });
+}
+
+export function updateNode(node: Node): Promise<null> {
+  console.log('updating node: ', node.uuid);
+  return invoke<null>('update_node', {
+    node: node,
+  });
+}
+
+export function removeNode(uuid: String): Promise<null> {
+  console.log('deleting node: ', uuid);
+  return invoke<null>('remove_node', {
+    queryUuid: uuid,
+  });
 }
 
 export {};

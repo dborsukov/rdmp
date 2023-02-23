@@ -13,8 +13,7 @@ diesel::table! {
         uuid -> Text,
         title -> Text,
         description -> Text,
-        is_main_node -> Bool,
-        node_order -> Integer,
+        node_type -> Text,
         parent_node -> Nullable<Text>,
         roadmap_uuid -> Text,
     }
@@ -22,7 +21,4 @@ diesel::table! {
 
 diesel::joinable!(nodes -> maps (roadmap_uuid));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    maps,
-    nodes,
-);
+diesel::allow_tables_to_appear_in_same_query!(maps, nodes,);
