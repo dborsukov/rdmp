@@ -25,19 +25,22 @@ function showRoadmapModal(action: 'create' | 'edit', existingRoadmap: Roadmap | 
   modal?.value?.open(action, existingRoadmap);
 }
 
-function showContextMenu(event: MouseEvent, item: any) {
-  context?.value?.open(event, item);
+function showContextMenu(event: MouseEvent, item: any, options: Object[]) {
+  context?.value?.open(event, item, options);
 }
 
-const options = ['Edit', 'Delete'];
+const options = [
+  { name: 'Edit', action: 'edit' },
+  { name: 'Delete', action: 'delete' },
+];
 
-async function handleOption(option: string, roadmap: Roadmap) {
-  switch (option) {
-    case 'Edit': {
+async function handleOption(optionAction: string, roadmap: Roadmap) {
+  switch (optionAction) {
+    case 'edit': {
       showRoadmapModal('edit', roadmap);
       break;
     }
-    case 'Delete': {
+    case 'delete': {
       const ok = await modalConfirm?.value?.show({
         title: 'Delete',
         message: `Are you sure you want to delete "${roadmap.title}"?`,
@@ -56,12 +59,7 @@ async function handleOption(option: string, roadmap: Roadmap) {
 </script>
 
 <template>
-  <ContextMenu
-    ref="context"
-    menu-id="roadmapMenu"
-    :options="options"
-    @handle-option="handleOption"
-  />
+  <ContextMenu ref="context" menu-id="roadmapMenu" @handle-option="handleOption" />
   <ModalConfirm ref="modalConfirm" />
   <RoadmapModal ref="modal" />
   <div
@@ -78,7 +76,7 @@ async function handleOption(option: string, roadmap: Roadmap) {
         v-for="roadmap in store.roadmaps"
         :key="roadmap.uuid"
         :to="`/roadmaps/${roadmap.uuid}`"
-        @contextmenu.prevent="showContextMenu($event, roadmap)"
+        @contextmenu.prevent="showContextMenu($event, roadmap, options)"
         >{{ roadmap.title }}</Link
       >
     </div>
