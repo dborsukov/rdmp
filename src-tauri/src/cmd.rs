@@ -25,6 +25,29 @@ pub struct Node {
 }
 
 #[command]
+pub fn load_roadmap(query_uuid: String) -> Result<Roadmap, String> {
+    use crate::schema::maps::dsl::*;
+    let conn = &mut establish_connection();
+
+    let map_model = match maps.find(&query_uuid).first::<models::Roadmap>(conn) {
+        Ok(map) => map,
+        Err(err) => {
+            error!("Failed to load roadmap {query_uuid}: {err}");
+            return Err(err.to_string());
+        }
+    };
+
+    let map = Roadmap {
+        uuid: map_model.uuid.clone(),
+        title: map_model.title.clone(),
+        description: map_model.description.clone(),
+        nodes: get_main_nodes(conn, &map_model)?,
+    };
+
+    Ok(map)
+}
+
+#[command]
 pub fn load_all_roadmaps() -> Result<Vec<Roadmap>, String> {
     use crate::schema::maps::dsl::*;
     let conn = &mut establish_connection();

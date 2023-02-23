@@ -3,7 +3,6 @@ import { ref } from 'vue';
 import IconPlusCircle from './icons/IconPlusCircle.vue';
 
 defineProps({
-  roadmapUUID: { type: String, required: true },
   uuid: { type: String, required: true },
   title: { type: String, required: true },
   description: { type: String, required: false },

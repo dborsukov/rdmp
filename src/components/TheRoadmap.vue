@@ -1,35 +1,41 @@
 <script setup lang="ts">
-import { watch, onMounted } from 'vue';
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
+import { mount } from 'mount-vue-component';
 import RoadmapNode from './RoadmapNode.vue';
 import type { Node } from '@/helpers';
-import { mount } from 'mount-vue-component';
+import { addNode, loadRoadmap } from '@/helpers';
+
+const nodes = ref<Array<Node>>([]);
 
 const props = defineProps({
   roadmapUUID: { type: String, required: true },
-  nodes: { type: Array<Node>, required: true },
 });
+
+watch(() => props.roadmapUUID, render);
 
 onMounted(() => {
+  render();
   addEventListener('resize', () => {
-    redrawSvg(props.nodes);
+    redrawSvg(nodes.value);
   });
-  render();
 });
 
-watch(props, () => {
-  console.log(props.nodes);
-  render();
+onBeforeUnmount(() => {
+  removeEventListener('resize', () => {
+    redrawSvg(nodes.value);
+  });
 });
 
-function render() {
+async function render() {
+  await loadRoadmap(props.roadmapUUID).then((roadmap) => {
+    nodes.value = roadmap.nodes;
+  });
   let root = document.getElementById('root');
-  if (!root) {
-    console.log("'root' element not found");
-    return;
+  if (root) {
+    root.replaceChildren();
+    buildTree(nodes.value, root);
+    redrawSvg(nodes.value);
   }
-  root.replaceChildren();
-  buildTree(props.nodes, root);
-  redrawSvg(props.nodes);
 }
 
 function buildTree(nodes: Array<Node>, root_el: HTMLElement) {
@@ -37,11 +43,9 @@ function buildTree(nodes: Array<Node>, root_el: HTMLElement) {
     let flexWrapper = document.createElement('div');
     flexWrapper.classList.add('my-flex');
 
-    let mainSubjectDiv = document.createElement('div');
-    flexWrapper.appendChild(mainSubjectDiv);
     mount(RoadmapNode, {
       props: {
-        id: node.uuid,
+        uuid: node.uuid,
         title: node.title,
         description: node.description,
         isMainNode: node.isMainNode,
@@ -61,9 +65,13 @@ function buildTree(nodes: Array<Node>, root_el: HTMLElement) {
 
 function redrawSvg(nodes: Array<Node>) {
   let svg = document.getElementById('svg');
-  svg?.setAttribute('width', '0');
-  svg?.setAttribute('height', '0');
-  svg?.replaceChildren();
+  if (!svg) {
+    return;
+  }
+
+  svg.setAttribute('width', '0');
+  svg.setAttribute('height', '0');
+  svg.replaceChildren();
 
   drawMain(nodes);
   drawSubs(nodes);

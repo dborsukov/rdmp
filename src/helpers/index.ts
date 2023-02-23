@@ -17,6 +17,18 @@ export type Node = {
   children: Array<Node>;
 };
 
+export function loadRoadmap(uuid: string): Promise<Roadmap> {
+  return new Promise((resolve) =>
+    invoke<Roadmap>('load_roadmap', { queryUuid: uuid })
+      .then((roadmap) => {
+        resolve(roadmap);
+      })
+      .catch((e) => {
+        console.log(e);
+      })
+  );
+}
+
 export function loadAllRoadmaps() {
   const store = useGlobalStore();
   invoke<Roadmap[]>('load_all_roadmaps')

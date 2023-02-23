@@ -15,7 +15,5 @@ watch(
 </script>
 
 <template>
-  <div class="p-10">
-    <Roadmap :roadmapUUID="uuid" :nodes="[]" />
-  </div>
+  <Roadmap :roadmapUUID="uuid" />
 </template>

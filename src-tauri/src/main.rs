@@ -19,6 +19,7 @@ fn main() {
 
     if let Err(err) = tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
+            cmd::load_roadmap,
             cmd::load_all_roadmaps,
             cmd::add_roadmap,
             cmd::update_roadmap,
