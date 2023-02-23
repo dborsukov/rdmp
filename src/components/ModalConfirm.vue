@@ -7,6 +7,7 @@ const title = ref();
 const message = ref();
 const okButton = ref();
 const cancelButton = ref();
+const warning = ref();
 
 const resolvePromise = ref();
 const rejectPromise = ref();
@@ -20,6 +21,7 @@ function show(opts: any) {
   message.value = opts.message;
   okButton.value = opts.okButton;
   cancelButton.value = opts.cancelButton;
+  warning.value = opts.warning;
 
   modalBase?.value?.open();
 
@@ -46,8 +48,16 @@ function _cancel() {
       <p class="font-bold">{{ title }}</p>
       <p>{{ message }}</p>
       <div class="ml-auto flex gap-x-2">
-        <Button @click="_confirm">{{ okButton }}</Button>
-        <Button @click="_cancel">{{ cancelButton }}</Button>
+        <Button
+          v-if="okButton"
+          :class="{
+            'border-red-600 bg-red-500 text-white hover:bg-red-400 active:bg-red-600 dark:border-red-600 dark:bg-red-500 dark:text-neutral-50 dark:hover:bg-red-400 dark:active:bg-red-600':
+              warning,
+          }"
+          @click="_confirm"
+          >{{ okButton }}</Button
+        >
+        <Button v-if="cancelButton" @click="_cancel">{{ cancelButton }}</Button>
       </div>
     </div>
   </ModalBase>

@@ -59,6 +59,7 @@ async function handleOption(option: string, node: Node) {
         message: `Are you sure you want to delete "${node.title}"?`,
         okButton: 'Delete',
         cancelButton: 'Cancel',
+        warning: true,
       });
       if (ok) {
         removeNode(node.uuid).then(render);

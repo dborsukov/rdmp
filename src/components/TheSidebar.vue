@@ -43,6 +43,7 @@ async function handleOption(option: string, roadmap: Roadmap) {
         message: `Are you sure you want to delete "${roadmap.title}"?`,
         okButton: 'Delete',
         cancelButton: 'Cancel',
+        warning: true,
       });
       if (ok) {
         router.push('/');
