@@ -133,10 +133,9 @@ fn get_child_nodes(conn: &mut SqliteConnection, node: &models::Node) -> Result<V
 pub fn add_roadmap(roadmap: models::Roadmap) -> Result<(), String> {
     use crate::schema::maps::dsl::*;
     let conn = &mut establish_connection();
-    diesel::insert_into(maps)
-        .values(roadmap)
-        .execute(conn)
-        .expect("failed to insert roadmap");
+    if let Err(err) = diesel::insert_into(maps).values(roadmap).execute(conn) {
+        return Err(format!("Failed to add roadmap: {err}"));
+    }
     Ok(())
 }
 
@@ -144,10 +143,12 @@ pub fn add_roadmap(roadmap: models::Roadmap) -> Result<(), String> {
 pub fn update_roadmap(roadmap: models::Roadmap) -> Result<(), String> {
     use crate::schema::maps::dsl::*;
     let conn = &mut establish_connection();
-    diesel::update(maps.find(roadmap.uuid))
+    if let Err(err) = diesel::update(maps.find(roadmap.uuid))
         .set((title.eq(roadmap.title), description.eq(roadmap.description)))
         .execute(conn)
-        .expect("failed to insert roadmap");
+    {
+        return Err(format!("Failed to update roadmap: {err}"));
+    }
     Ok(())
 }
 
@@ -155,9 +156,9 @@ pub fn update_roadmap(roadmap: models::Roadmap) -> Result<(), String> {
 pub fn remove_roadmap(query_uuid: &str) -> Result<(), String> {
     use crate::schema::maps::dsl::*;
     let conn = &mut establish_connection();
-    diesel::delete(maps.filter(uuid.eq(query_uuid)))
-        .execute(conn)
-        .expect("failed to delete roadmap");
+    if let Err(err) = diesel::delete(maps.filter(uuid.eq(query_uuid))).execute(conn) {
+        return Err(format!("Failed to delete roadmap: {err}"));
+    }
     Ok(())
 }
 
@@ -177,10 +178,9 @@ pub fn add_node(
         parent_node: parent_node_uuid,
         roadmap_uuid: query_roadmap_uuid,
     };
-    diesel::insert_into(nodes)
-        .values(node_model)
-        .execute(conn)
-        .expect("failed to insert node");
+    if let Err(err) = diesel::insert_into(nodes).values(node_model).execute(conn) {
+        return Err(format!("Failed to add node: {err}"));
+    }
     Ok(())
 }
 
@@ -188,10 +188,12 @@ pub fn add_node(
 pub fn update_node(node: Node) -> Result<(), String> {
     use crate::schema::nodes::dsl::*;
     let conn = &mut establish_connection();
-    diesel::update(nodes.find(node.uuid))
+    if let Err(err) = diesel::update(nodes.find(node.uuid))
         .set((title.eq(node.title), description.eq(node.description)))
         .execute(conn)
-        .expect("failed to update node");
+    {
+        return Err(format!("Failed to update node: {err}"));
+    }
     Ok(())
 }
 
@@ -199,8 +201,8 @@ pub fn update_node(node: Node) -> Result<(), String> {
 pub fn remove_node(query_uuid: &str) -> Result<(), String> {
     use crate::schema::nodes::dsl::*;
     let conn = &mut establish_connection();
-    diesel::delete(nodes.filter(uuid.eq(query_uuid)))
-        .execute(conn)
-        .expect("failed to delete node");
+    if let Err(err) = diesel::delete(nodes.filter(uuid.eq(query_uuid))).execute(conn) {
+        return Err(format!("Failed to delete node: {err}"));
+    }
     Ok(())
 }
