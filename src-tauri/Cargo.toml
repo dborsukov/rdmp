@@ -1,6 +1,6 @@
 [package]
 name = "rdmp"
-version = "0.0.0"
+version = "0.0.5"
 description = ""
 authors = ["mincedjuice"]
 default-run = "rdmp"
@@ -18,7 +18,7 @@ tokio = { version = "1.21.2", features = ["full"] }
 diesel = { version = "2.0.0", features = ["sqlite"] }
 diesel_migrations = { version = "2.0.0", features = ["sqlite"] }
 libsqlite3-sys = { version = "^0", features = ["bundled"] }
-flexi_logger = "0.24"
+flexi_logger = "0.25.1"
 log = "0.4"
 
 [features]
