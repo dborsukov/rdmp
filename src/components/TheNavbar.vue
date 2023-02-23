@@ -17,8 +17,8 @@ const route = useRoute();
     <div class="ml-auto flex items-center gap-x-2">
       <div v-if="route.name == 'roadmap'">[Roadmap Controls]</div>
       <div @click="store.toggleDarkTheme()">
-        <IconSun class="h-6 cursor-pointer" v-if="store.darkThemeSelected" />
-        <IconMoon class="h-6 cursor-pointer" v-else />
+        <IconSun v-if="store.darkThemeSelected" class="h-6 cursor-pointer" />
+        <IconMoon v-else class="h-6 cursor-pointer" />
       </div>
     </div>
   </div>

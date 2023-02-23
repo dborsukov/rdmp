@@ -77,14 +77,12 @@ export function addNode(
 }
 
 export function updateNode(node: Node): Promise<null> {
-  console.log('updating node: ', node.uuid);
   return invoke<null>('update_node', {
     node: node,
   });
 }
 
 export function removeNode(uuid: String): Promise<null> {
-  console.log('deleting node: ', uuid);
   return invoke<null>('remove_node', {
     queryUuid: uuid,
   });

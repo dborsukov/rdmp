@@ -2,40 +2,43 @@
 import { onMounted, onBeforeUnmount, ref } from 'vue';
 import { useClickOutside } from '@/composables';
 
+onMounted(() => {
+  document.body.addEventListener('keyup', onEscPressed);
+});
+
+onBeforeUnmount(() => {
+  document.body.removeEventListener('keyup', onEscPressed);
+});
+
+defineExpose({ open });
+
+const emit = defineEmits(['handle-option']);
+
 const props = defineProps({
   menuId: { type: String, required: true },
   options: { type: Array<String>, required: true },
 });
 
-const emit = defineEmits(['handle-option']);
-
-defineExpose({ open });
-
 const active = ref(false);
 
-const item = ref();
-
 const menu = ref();
-
 useClickOutside(menu, hide);
+
+const item = ref();
 
 function open(event: MouseEvent, it: any) {
   item.value = it;
 
   let menu = document.getElementById(props.menuId);
-  if (!menu) return;
-
-  menu.style.left = event.screenX + 'px';
-  menu.style.top = event.screenY + 'px';
-
-  active.value = true;
+  if (menu) {
+    menu.style.left = event.screenX + 'px';
+    menu.style.top = event.screenY + 'px';
+    active.value = true;
+  }
 }
 
 function hide() {
-  const menu = document.getElementById(props.menuId);
-  if (menu) {
-    active.value = false;
-  }
+  active.value = false;
 }
 
 function optionClicked(op: String) {
@@ -48,19 +51,11 @@ function onEscPressed(event: KeyboardEvent) {
     hide();
   }
 }
-
-onMounted(() => {
-  document.body.addEventListener('keyup', onEscPressed);
-});
-
-onBeforeUnmount(() => {
-  document.body.removeEventListener('keyup', onEscPressed);
-});
 </script>
 
 <template>
   <Teleport to="body">
-    <div :id="menuId" ref="menu" v-show="active" class="absolute z-50 w-40">
+    <div v-show="active" :id="menuId" ref="menu" class="absolute z-50 w-40">
       <div
         class="flex flex-col gap-y-2 rounded-lg border bg-white p-2 shadow-lg dark:border-neutral-700 dark:bg-neutral-800"
       >

@@ -1,52 +1,53 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { v4 } from 'uuid';
+import { useRouter } from 'vue-router';
 import { addNode, addRoadmap, updateRoadmap, loadAllRoadmaps, type Roadmap } from '@/helpers';
 import Label from '@/components/VLabel.vue';
 import Input from '@/components/VInput.vue';
 import Button from '@/components/VButton.vue';
 import ModalBase from '@/components/ModalBase.vue';
-import { useRouter } from 'vue-router';
 
 const router = useRouter();
+
 const modalBase = ref();
-const type = ref('create');
+const modalAction = ref();
 const incompleteInfo = ref(false);
 
-const uuid = ref('');
-const title = ref('');
-const description = ref('');
+const modalUuid = ref('');
+const modalTitle = ref('');
+const modalDescription = ref('');
 
 defineExpose({ open });
 
-function open(type_: string, roadmap: Roadmap | null) {
-  type.value = type_;
-  if (roadmap) {
-    uuid.value = roadmap.uuid;
-    title.value = roadmap.title;
-    description.value = roadmap.description;
+function open(action: 'create' | 'edit', existingRoadmap: Roadmap | null) {
+  modalAction.value = action;
+  if (existingRoadmap) {
+    modalUuid.value = existingRoadmap.uuid;
+    modalTitle.value = existingRoadmap.title;
+    modalDescription.value = existingRoadmap.description;
   }
   modalBase?.value?.open();
 }
 
 function close() {
   modalBase?.value?.close();
-  title.value = '';
-  description.value = '';
+  modalTitle.value = '';
+  modalDescription.value = '';
   incompleteInfo.value = false;
 }
 
 function confirm() {
-  if (title.value.trim() == '' || description.value.trim() == '') {
+  if (fieldsEmpty()) {
     incompleteInfo.value = true;
     return;
   }
-  if (type.value == 'create') {
-    let roadmapUUID = v4();
+  if (modalAction.value == 'create') {
+    let newRoadmapUuid = v4();
     addRoadmap({
-      uuid: roadmapUUID,
-      title: title.value,
-      description: description.value,
+      uuid: newRoadmapUuid,
+      title: modalTitle.value,
+      description: modalDescription.value,
       nodes: [],
     })
       .then(() => {
@@ -59,23 +60,27 @@ function confirm() {
             children: [],
           },
           null,
-          roadmapUUID
+          newRoadmapUuid
         );
       })
       .then(() => {
         loadAllRoadmaps();
-        router.push(`/roadmaps/${roadmapUUID}`);
+        router.push(`/roadmaps/${newRoadmapUuid}`);
       });
   }
-  if (type.value == 'edit') {
+  if (modalAction.value == 'edit') {
     updateRoadmap({
-      uuid: uuid.value,
-      title: title.value,
-      description: description.value,
+      uuid: modalUuid.value,
+      title: modalTitle.value,
+      description: modalDescription.value,
       nodes: [],
     });
   }
   close();
+}
+
+function fieldsEmpty(): Boolean {
+  return modalTitle.value.trim() == '' || modalDescription.value.trim() == '';
 }
 </script>
 
@@ -83,13 +88,13 @@ function confirm() {
   <ModalBase ref="modalBase">
     <div class="flex flex-col gap-y-3">
       <Label>Title</Label>
-      <Input class="w-96" type="text" v-model="title" />
+      <Input v-model="modalTitle" class="w-96" type="text" />
       <Label>Short description</Label>
-      <Input class="w-96" type="text" v-model="description" />
-      <p class="text-red-500" v-if="incompleteInfo">Both fields should be filled</p>
+      <Input v-model="modalDescription" class="w-96" type="text" />
+      <p v-if="incompleteInfo" class="text-red-500">Both fields should be filled</p>
       <div class="ml-auto flex gap-x-2">
-        <Button v-if="type == 'create'" accent @click="confirm">Create</Button>
-        <Button v-if="type == 'edit'" accent @click="confirm">Save</Button>
+        <Button v-if="modalAction == 'create'" accent @click="confirm">Create</Button>
+        <Button v-if="modalAction == 'edit'" accent @click="confirm">Save</Button>
         <Button @click="close()">Cancel</Button>
       </div>
     </div>

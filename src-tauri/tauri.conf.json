@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "rdmp",
-    "version": "0.0.5"
+    "version": "0.0.6"
   },
   "tauri": {
     "allowlist": {
@@ -28,7 +28,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "dev.mincedjuice.rdmp",
+      "identifier": "dev.dbsdm.rdmp",
       "longDescription": "",
       "macOS": {
         "entitlements": null,

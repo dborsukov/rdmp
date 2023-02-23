@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import IconPlusCircle from './icons/IconPlusCircle.vue';
+import IconPlusCircle from '@/components/icons/IconPlusCircle.vue';
+
+defineEmits(['createNode']);
 
 const props = defineProps({
   uuid: { type: String, required: true },
   title: { type: String, required: true },
-  description: { type: String, required: false },
+  description: { type: String, required: true },
   nodeType: { type: String, required: true },
 });
 

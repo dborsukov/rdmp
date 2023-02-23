@@ -1,64 +1,11 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import { mount } from 'mount-vue-component';
-import RoadmapNode from './RoadmapNode.vue';
-import type { Node } from '@/helpers';
-import { loadRoadmap, removeNode } from '@/helpers';
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
+import { loadRoadmap, removeNode, type Node } from '@/helpers';
+import RoadmapNode from '@/components/RoadmapNode.vue';
 import RoadmapNodeModal from '@/components/RoadmapNodeModal.vue';
-import ContextMenu from '@/components/ContextMenu.vue';
 import ModalConfirm from '@/components/ModalConfirm.vue';
-
-const nodes = ref<Array<Node>>([]);
-
-const props = defineProps({
-  roadmapUUID: { type: String, required: true },
-});
-
-watch(() => props.roadmapUUID, render);
-
-const modal = ref<typeof RoadmapNodeModal>();
-
-function showRoadmapNodeModal(
-  modalType: string,
-  existingNode: Node | null,
-  nodeType: String,
-  parentNodeUUID: string | null
-) {
-  modal?.value?.open(modalType, existingNode, nodeType, parentNodeUUID, props.roadmapUUID);
-}
-
-const context = ref<typeof ContextMenu>();
-
-function showContextMenu(event: MouseEvent, item: any) {
-  context?.value?.open(event, item);
-}
-
-const modalConfirm = ref<typeof ModalConfirm>();
-
-const options = ['Edit', 'Delete'];
-
-async function handleOption(op: string, node: Node) {
-  console.log('received option: ', op);
-  switch (op) {
-    case 'Edit': {
-      showRoadmapNodeModal('edit', node, node.nodeType, null);
-      break;
-    }
-    case 'Delete': {
-      console.log('calling confirm modal');
-      const ok = await modalConfirm?.value?.show({
-        title: 'Delete',
-        message: `Are you sure you want to delete "${node.title}"?`,
-        okButton: 'Delete',
-        cancelButton: 'Cancel',
-      });
-      if (ok) {
-        removeNode(node.uuid).then(render);
-        break;
-      }
-    }
-  }
-}
+import ContextMenu from '@/components/ContextMenu.vue';
 
 onMounted(() => {
   render();
@@ -73,8 +20,56 @@ onBeforeUnmount(() => {
   });
 });
 
+watch(() => props.roadmapUuid, render);
+
+const props = defineProps({
+  roadmapUuid: { type: String, required: true },
+});
+
+const nodes = ref<Array<Node>>([]);
+
+const context = ref<typeof ContextMenu>();
+const modal = ref<typeof RoadmapNodeModal>();
+const modalConfirm = ref<typeof ModalConfirm>();
+
+function showRoadmapNodeModal(
+  action: 'create' | 'edit',
+  existingNode: Node | null,
+  nodeType: String,
+  parentNodeUuid: string | null
+) {
+  modal?.value?.open(action, existingNode, nodeType, parentNodeUuid, props.roadmapUuid);
+}
+
+function showContextMenu(event: MouseEvent, item: any) {
+  context?.value?.open(event, item);
+}
+
+const options = ['Edit', 'Delete'];
+
+async function handleOption(option: string, node: Node) {
+  switch (option) {
+    case 'Edit': {
+      showRoadmapNodeModal('edit', node, node.nodeType, null);
+      break;
+    }
+    case 'Delete': {
+      const ok = await modalConfirm?.value?.show({
+        title: 'Delete',
+        message: `Are you sure you want to delete "${node.title}"?`,
+        okButton: 'Delete',
+        cancelButton: 'Cancel',
+      });
+      if (ok) {
+        removeNode(node.uuid).then(render);
+        break;
+      }
+    }
+  }
+}
+
 async function render() {
-  await loadRoadmap(props.roadmapUUID).then((roadmap) => {
+  await loadRoadmap(props.roadmapUuid).then((roadmap) => {
     nodes.value = roadmap.nodes;
   });
   let root = document.getElementById('root');
@@ -117,19 +112,16 @@ function buildTree(nodes: Array<Node>, root_el: HTMLElement) {
 
 function redrawSvg(nodes: Array<Node>) {
   let svg = document.getElementById('svg');
-  if (!svg) {
-    return;
+  if (svg) {
+    svg.setAttribute('width', '0');
+    svg.setAttribute('height', '0');
+    svg.replaceChildren();
+    drawMainNodes(nodes);
+    drawChildNodes(nodes);
   }
-
-  svg.setAttribute('width', '0');
-  svg.setAttribute('height', '0');
-  svg.replaceChildren();
-
-  drawMain(nodes);
-  drawSubs(nodes);
 }
 
-function drawMain(nodes: Array<Node>) {
+function drawMainNodes(nodes: Array<Node>) {
   nodes.forEach((_, i) => {
     let currentNode = document.querySelector(`[data-node-id='${nodes[i]?.uuid}']`);
     let followingNode = document.querySelector(`[data-node-id='${nodes[i + 1]?.uuid}']`);
@@ -139,7 +131,7 @@ function drawMain(nodes: Array<Node>) {
   });
 }
 
-function drawSubs(nodes: Array<Node>) {
+function drawChildNodes(nodes: Array<Node>) {
   nodes.forEach((node) => {
     node.children.forEach((child) => {
       let parentNode = document.querySelector(`[data-node-id='${node.uuid}']`);
@@ -148,7 +140,7 @@ function drawSubs(nodes: Array<Node>) {
         drawPath(parentNode, childNode);
       }
     });
-    drawSubs(node.children);
+    drawChildNodes(node.children);
   });
 }
 
@@ -157,7 +149,6 @@ function drawPath(fromElem: Element, toElem: Element) {
   let parentRect = document.getElementById('root')?.getBoundingClientRect();
 
   if (parentRect == undefined || svg == undefined) {
-    console.log("'root' or 'svg' element not found");
     return;
   }
 
@@ -243,15 +234,15 @@ function drawPath(fromElem: Element, toElem: Element) {
 
 <template>
   <ContextMenu
-    menu-id="roadmapNodeMenu"
     ref="context"
+    menu-id="roadmapNodeMenu"
     :options="options"
     @handle-option="handleOption"
   />
   <ModalConfirm ref="modalConfirm" />
   <RoadmapNodeModal ref="modal" @tree-changed="render" />
   <svg id="svg" class="absolute" width="0" height="0"></svg>
-  <main class="flex h-full w-full flex-col gap-10 p-10" id="root"></main>
+  <main id="root" class="flex h-full w-full flex-col gap-10 p-10"></main>
 </template>
 
 <style>

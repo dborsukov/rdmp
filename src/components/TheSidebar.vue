@@ -10,31 +10,29 @@ import RoadmapModal from '@/components/RoadmapModal.vue';
 import ContextMenu from '@/components/ContextMenu.vue';
 import ModalConfirm from '@/components/ModalConfirm.vue';
 
-const router = useRouter();
-const store = useGlobalStore();
-
 onMounted(() => {
   loadAllRoadmaps();
 });
 
+const router = useRouter();
+const store = useGlobalStore();
+
+const modal = ref<typeof RoadmapModal>();
 const context = ref<typeof ContextMenu>();
+const modalConfirm = ref<typeof ModalConfirm>();
+
+function showRoadmapModal(action: 'create' | 'edit', existingRoadmap: Roadmap | null) {
+  modal?.value?.open(action, existingRoadmap);
+}
 
 function showContextMenu(event: MouseEvent, item: any) {
   context?.value?.open(event, item);
 }
 
-const modal = ref<typeof RoadmapModal>();
-
-function showRoadmapModal(type: string, roadmap: Roadmap | null) {
-  modal?.value?.open(type, roadmap);
-}
-
-const modalConfirm = ref<typeof ModalConfirm>();
-
 const options = ['Edit', 'Delete'];
 
-async function handleOption(op: string, roadmap: Roadmap) {
-  switch (op) {
+async function handleOption(option: string, roadmap: Roadmap) {
+  switch (option) {
     case 'Edit': {
       showRoadmapModal('edit', roadmap);
       break;
@@ -58,8 +56,8 @@ async function handleOption(op: string, roadmap: Roadmap) {
 
 <template>
   <ContextMenu
-    menu-id="roadmapMenu"
     ref="context"
+    menu-id="roadmapMenu"
     :options="options"
     @handle-option="handleOption"
   />
