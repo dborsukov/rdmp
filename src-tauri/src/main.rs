@@ -1,3 +1,10 @@
+#![warn(
+    clippy::cargo,
+    clippy::pedantic,
+    clippy::nursery,
+    clippy::unwrap_used,
+    clippy::expect_used
+)]
 #![cfg_attr(
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
@@ -29,6 +36,8 @@ fn main() {
             cmd::remove_node,
             cmd::set_done,
             cmd::set_skip,
+            cmd::load_details,
+            cmd::save_details,
         ])
         .run(tauri::generate_context!())
     {

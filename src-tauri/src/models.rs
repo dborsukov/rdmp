@@ -32,6 +32,8 @@ pub struct Node {
     #[diesel(sql_type=Boolean)]
     pub skip: bool,
     #[diesel(sql_type=Nullable<Text>)]
+    pub details: Option<String>,
+    #[diesel(sql_type=Nullable<Text>)]
     pub parent_node: Option<String>,
     #[diesel(sql_type=Text)]
     pub roadmap_uuid: String,

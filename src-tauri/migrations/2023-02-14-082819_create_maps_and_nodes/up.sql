@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS nodes (
     node_type VARCHAR NOT NULL,
     done BOOLEAN NOT NULL,
     skip BOOLEAN NOT NULL,
+    details VARCHAR,
     parent_node VARCHAR,
     roadmap_uuid VARCHAR NOT NULL,
     FOREIGN KEY (roadmap_uuid) REFERENCES maps (uuid) ON DELETE CASCADE

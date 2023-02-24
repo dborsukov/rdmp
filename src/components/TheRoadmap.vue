@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { mount } from 'mount-vue-component';
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { loadRoadmap, removeNode, setDone, setSkip, type Node } from '@/helpers';
 import RoadmapNode from '@/components/RoadmapNode.vue';
 import RoadmapNodeModal from '@/components/RoadmapNodeModal.vue';
 import ModalConfirm from '@/components/ModalConfirm.vue';
 import ContextMenu from '@/components/ContextMenu.vue';
+import TheDetails from '@/components/TheDetails.vue';
 
 onMounted(() => {
   render();
@@ -44,10 +45,24 @@ function showRoadmapNodeModal(
 function showContextMenu(event: MouseEvent, item: any, options: Object[]) {
   context?.value?.open(event, item, options);
 }
+
+const detailsActive = ref(false);
+const detailsPage = ref<typeof TheDetails>();
+
+async function showDetailsPage(node: Node) {
+  detailsActive.value = true;
+  await nextTick();
+  detailsPage?.value?.show(node);
+}
+
 async function handleOption(optionAction: string, node: Node) {
   switch (optionAction) {
     case 'edit': {
       showRoadmapNodeModal('edit', node, node.nodeType, null);
+      break;
+    }
+    case 'details': {
+      showDetailsPage(node);
       break;
     }
     case 'setDoneTrue': {
@@ -108,11 +123,15 @@ function buildTree(nodes: Array<Node>, root_el: HTMLElement) {
         done: node.done,
         skip: node.skip,
         onCreateNode: showRoadmapNodeModal,
+        ondblclick: () => {
+          showDetailsPage(node);
+        },
         oncontextmenu: (e: MouseEvent) => {
           if (node.nodeType != 'root') {
             e.preventDefault();
             showContextMenu(e, node, [
               { name: 'Edit', action: 'edit' },
+              { name: 'Details', action: 'details' },
               { name: '|', action: '' },
               { name: 'Done', action: node.done ? 'setDoneFalse' : 'setDoneTrue' },
               { name: 'Skip', action: node.skip ? 'setSkipFalse' : 'setSkipTrue' },
@@ -261,8 +280,18 @@ function drawPath(fromElem: Element, toElem: Element) {
   <ContextMenu ref="context" menu-id="roadmapNodeMenu" @handle-option="handleOption" />
   <ModalConfirm ref="modalConfirm" />
   <RoadmapNodeModal ref="modal" @tree-changed="render" />
-  <svg id="svg" class="absolute" width="0" height="0"></svg>
-  <main id="root" class="flex h-full w-full flex-col gap-10 p-10"></main>
+  <TheDetails
+    v-if="detailsActive"
+    ref="detailsPage"
+    @close="
+      detailsActive = false;
+      render();
+    "
+  />
+  <div v-else>
+    <svg id="svg" class="absolute" width="0" height="0"></svg>
+    <main id="root" class="flex h-full w-full flex-col gap-10 p-10"></main>
+  </div>
 </template>
 
 <style>

@@ -103,4 +103,18 @@ export function setSkip(uuid: String, skip: boolean): Promise<null> {
     querySkip: skip,
   });
 }
+
+export function loadDetails(uuid: String): Promise<String> {
+  return invoke<String>('load_details', {
+    queryUuid: uuid,
+  });
+}
+
+export function saveDetails(uuid: String, details: String): Promise<null> {
+  return invoke<null>('save_details', {
+    queryUuid: uuid,
+    queryString: details,
+  });
+}
+
 export {};

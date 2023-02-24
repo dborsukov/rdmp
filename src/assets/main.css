@@ -23,6 +23,26 @@
     font-style: italic;
     src: url(@/assets/fonts/Roboto-BoldItalic.ttf);
   }
+  @font-face {
+    font-family: 'RobotoMono';
+    src: url(@/assets/fonts/RobotoMono-Regular.ttf);
+  }
+  @font-face {
+    font-family: 'RobotoMono';
+    font-weight: bold;
+    src: url(@/assets/fonts/RobotoMono-Bold.ttf);
+  }
+  @font-face {
+    font-family: 'RobotoMono';
+    font-style: italic;
+    src: url(@/assets/fonts/RobotoMono-Italic.ttf);
+  }
+  @font-face {
+    font-family: 'RobotoMono';
+    font-weight: bold;
+    font-style: italic;
+    src: url(@/assets/fonts/RobotoMono-BoldItalic.ttf);
+  }
   * {
     box-sizing: border-box;
     padding: 0;

@@ -23,6 +23,7 @@ pub struct Node {
     node_type: String,
     done: bool,
     skip: bool,
+    details: Option<String>,
     children: Vec<Node>,
 }
 
@@ -98,6 +99,7 @@ fn get_main_nodes(conn: &mut SqliteConnection, map: &models::Roadmap) -> Result<
             node_type: node.node_type.clone(),
             done: node.done,
             skip: node.skip,
+            details: node.details.clone(),
             children: get_child_nodes(conn, &node)?,
         })
     }
@@ -128,6 +130,7 @@ fn get_child_nodes(conn: &mut SqliteConnection, node: &models::Node) -> Result<V
             node_type: node.node_type.clone(),
             done: node.done,
             skip: node.skip,
+            details: node.details.clone(),
             children: get_child_nodes(conn, &node)?,
         })
     }
@@ -183,6 +186,7 @@ pub fn add_node(
         node_type: node.node_type,
         done: false,
         skip: false,
+        details: None,
         parent_node: parent_node_uuid,
         roadmap_uuid: query_roadmap_uuid,
     };
@@ -234,6 +238,36 @@ pub fn set_skip(query_uuid: &str, query_skip: bool) -> Result<(), String> {
     let conn = &mut establish_connection();
     if let Err(err) = diesel::update(nodes.find(query_uuid))
         .set((skip.eq(query_skip), done.eq(false)))
+        .execute(conn)
+    {
+        return Err(format!("Failed to update node: {err}"));
+    }
+    Ok(())
+}
+
+#[command]
+pub fn load_details(query_uuid: &str) -> Result<Option<String>, String> {
+    use crate::schema::nodes::dsl::*;
+    let conn = &mut establish_connection();
+    match nodes
+        .select(details)
+        .filter(uuid.eq(query_uuid))
+        .first::<Option<String>>(conn)
+    {
+        Ok(string) => Ok(string),
+        Err(err) => {
+            error!("Failed to load roadmap {query_uuid}: {err}");
+            Err(err.to_string())
+        }
+    }
+}
+
+#[command]
+pub fn save_details(query_uuid: &str, query_string: Option<&str>) -> Result<(), String> {
+    use crate::schema::nodes::dsl::*;
+    let conn = &mut establish_connection();
+    if let Err(err) = diesel::update(nodes.find(query_uuid))
+        .set(details.eq(query_string))
         .execute(conn)
     {
         return Err(format!("Failed to update node: {err}"));

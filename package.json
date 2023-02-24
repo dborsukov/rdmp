@@ -1,6 +1,6 @@
 {
   "name": "rdmp",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -17,7 +17,10 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^1.2.0",
+    "autosize": "^6.0.1",
+    "highlight.js": "^11.7.0",
     "lodash": "^4.17.21",
+    "marked": "^4.2.12",
     "mount-vue-component": "^0.10.2",
     "pinia": "^2.0.28",
     "uuid": "^9.0.0",
@@ -26,8 +29,10 @@
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.4",
+    "@types/autosize": "^4.0.1",
     "@types/jsdom": "^20.0.1",
     "@types/lodash": "^4.14.191",
+    "@types/marked": "^4.0.8",
     "@types/node": "^18.11.12",
     "@types/uuid": "^9.0.0",
     "@vitejs/plugin-vue": "^4.0.0",
