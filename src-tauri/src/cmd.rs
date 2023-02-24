@@ -28,8 +28,8 @@ pub struct Node {
 }
 
 #[command]
-pub fn load_roadmap(query_uuid: String) -> Result<Roadmap, String> {
-    use crate::schema::maps::dsl::*;
+pub fn load_roadmap(query_uuid: &str) -> Result<Roadmap, String> {
+    use crate::schema::maps::dsl::maps;
     let conn = &mut establish_connection();
 
     let map_model = match maps.find(&query_uuid).first::<models::Roadmap>(conn) {
@@ -52,7 +52,7 @@ pub fn load_roadmap(query_uuid: String) -> Result<Roadmap, String> {
 
 #[command]
 pub fn load_all_roadmaps() -> Result<Vec<Roadmap>, String> {
-    use crate::schema::maps::dsl::*;
+    use crate::schema::maps::dsl::maps;
     let conn = &mut establish_connection();
     let mut allmaps = Vec::new();
 
@@ -70,14 +70,14 @@ pub fn load_all_roadmaps() -> Result<Vec<Roadmap>, String> {
             title: map.title.clone(),
             description: map.description.clone(),
             nodes: get_main_nodes(conn, &map)?,
-        })
+        });
     }
 
     Ok(allmaps)
 }
 
 fn get_main_nodes(conn: &mut SqliteConnection, map: &models::Roadmap) -> Result<Vec<Node>, String> {
-    use crate::schema::nodes::dsl::*;
+    use crate::schema::nodes::dsl::node_type;
     let mut main_nodes = Vec::new();
 
     let results = match models::Node::belonging_to(map)
@@ -101,14 +101,14 @@ fn get_main_nodes(conn: &mut SqliteConnection, map: &models::Roadmap) -> Result<
             skip: node.skip,
             details: node.details.clone(),
             children: get_child_nodes(conn, &node)?,
-        })
+        });
     }
 
     Ok(main_nodes)
 }
 
 fn get_child_nodes(conn: &mut SqliteConnection, node: &models::Node) -> Result<Vec<Node>, String> {
-    use crate::schema::nodes::dsl::*;
+    use crate::schema::nodes::dsl::{nodes, parent_node};
     let mut child_nodes = Vec::new();
 
     let results = match nodes
@@ -132,7 +132,7 @@ fn get_child_nodes(conn: &mut SqliteConnection, node: &models::Node) -> Result<V
             skip: node.skip,
             details: node.details.clone(),
             children: get_child_nodes(conn, &node)?,
-        })
+        });
     }
 
     Ok(child_nodes)
@@ -140,7 +140,7 @@ fn get_child_nodes(conn: &mut SqliteConnection, node: &models::Node) -> Result<V
 
 #[command]
 pub fn add_roadmap(roadmap: models::Roadmap) -> Result<(), String> {
-    use crate::schema::maps::dsl::*;
+    use crate::schema::maps::dsl::maps;
     let conn = &mut establish_connection();
     if let Err(err) = diesel::insert_into(maps).values(roadmap).execute(conn) {
         return Err(format!("Failed to add roadmap: {err}"));
@@ -150,7 +150,7 @@ pub fn add_roadmap(roadmap: models::Roadmap) -> Result<(), String> {
 
 #[command]
 pub fn update_roadmap(roadmap: models::Roadmap) -> Result<(), String> {
-    use crate::schema::maps::dsl::*;
+    use crate::schema::maps::dsl::{description, maps, title};
     let conn = &mut establish_connection();
     if let Err(err) = diesel::update(maps.find(roadmap.uuid))
         .set((title.eq(roadmap.title), description.eq(roadmap.description)))
@@ -163,7 +163,7 @@ pub fn update_roadmap(roadmap: models::Roadmap) -> Result<(), String> {
 
 #[command]
 pub fn remove_roadmap(query_uuid: &str) -> Result<(), String> {
-    use crate::schema::maps::dsl::*;
+    use crate::schema::maps::dsl::{maps, uuid};
     let conn = &mut establish_connection();
     if let Err(err) = diesel::delete(maps.filter(uuid.eq(query_uuid))).execute(conn) {
         return Err(format!("Failed to delete roadmap: {err}"));
@@ -177,7 +177,7 @@ pub fn add_node(
     parent_node_uuid: Option<String>,
     query_roadmap_uuid: String,
 ) -> Result<(), String> {
-    use crate::schema::nodes::dsl::*;
+    use crate::schema::nodes::dsl::nodes;
     let conn = &mut establish_connection();
     let node_model = models::Node {
         uuid: node.uuid,
@@ -198,7 +198,7 @@ pub fn add_node(
 
 #[command]
 pub fn update_node(node: Node) -> Result<(), String> {
-    use crate::schema::nodes::dsl::*;
+    use crate::schema::nodes::dsl::{description, nodes, title};
     let conn = &mut establish_connection();
     if let Err(err) = diesel::update(nodes.find(node.uuid))
         .set((title.eq(node.title), description.eq(node.description)))
@@ -211,7 +211,7 @@ pub fn update_node(node: Node) -> Result<(), String> {
 
 #[command]
 pub fn remove_node(query_uuid: &str) -> Result<(), String> {
-    use crate::schema::nodes::dsl::*;
+    use crate::schema::nodes::dsl::{nodes, uuid};
     let conn = &mut establish_connection();
     if let Err(err) = diesel::delete(nodes.filter(uuid.eq(query_uuid))).execute(conn) {
         return Err(format!("Failed to delete node: {err}"));
@@ -221,7 +221,7 @@ pub fn remove_node(query_uuid: &str) -> Result<(), String> {
 
 #[command]
 pub fn set_done(query_uuid: &str, query_done: bool) -> Result<(), String> {
-    use crate::schema::nodes::dsl::*;
+    use crate::schema::nodes::dsl::{done, nodes, skip};
     let conn = &mut establish_connection();
     if let Err(err) = diesel::update(nodes.find(query_uuid))
         .set((done.eq(query_done), skip.eq(false)))
@@ -234,7 +234,7 @@ pub fn set_done(query_uuid: &str, query_done: bool) -> Result<(), String> {
 
 #[command]
 pub fn set_skip(query_uuid: &str, query_skip: bool) -> Result<(), String> {
-    use crate::schema::nodes::dsl::*;
+    use crate::schema::nodes::dsl::{done, nodes, skip};
     let conn = &mut establish_connection();
     if let Err(err) = diesel::update(nodes.find(query_uuid))
         .set((skip.eq(query_skip), done.eq(false)))
@@ -247,7 +247,7 @@ pub fn set_skip(query_uuid: &str, query_skip: bool) -> Result<(), String> {
 
 #[command]
 pub fn load_details(query_uuid: &str) -> Result<Option<String>, String> {
-    use crate::schema::nodes::dsl::*;
+    use crate::schema::nodes::dsl::{details, nodes, uuid};
     let conn = &mut establish_connection();
     match nodes
         .select(details)
@@ -264,7 +264,7 @@ pub fn load_details(query_uuid: &str) -> Result<Option<String>, String> {
 
 #[command]
 pub fn save_details(query_uuid: &str, query_string: Option<&str>) -> Result<(), String> {
-    use crate::schema::nodes::dsl::*;
+    use crate::schema::nodes::dsl::{details, nodes};
     let conn = &mut establish_connection();
     if let Err(err) = diesel::update(nodes.find(query_uuid))
         .set(details.eq(query_string))

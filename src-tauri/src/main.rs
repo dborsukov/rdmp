@@ -1,10 +1,10 @@
 #![warn(
-    clippy::cargo,
     clippy::pedantic,
     clippy::nursery,
     clippy::unwrap_used,
     clippy::expect_used
 )]
+#![allow(clippy::missing_errors_doc, clippy::missing_panics_doc)]
 #![cfg_attr(
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"

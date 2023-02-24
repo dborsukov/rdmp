@@ -1,4 +1,4 @@
-use crate::schema::*;
+use crate::schema::{maps, nodes};
 use diesel::prelude::*;
 use serde::Deserialize;
 

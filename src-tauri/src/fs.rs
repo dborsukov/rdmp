@@ -27,5 +27,12 @@ pub fn validate() {
 }
 
 pub fn get_app_base_dir() -> PathBuf {
-    Path::new(&tauri::api::path::home_dir().unwrap()).join(".rdmp")
+    let user_home_dir = tauri::api::path::home_dir().map_or_else(
+        || {
+            error!("Failed to locate user home dir");
+            process::exit(1);
+        },
+        |path| path,
+    );
+    Path::new(&user_home_dir).join(".rdmp")
 }
