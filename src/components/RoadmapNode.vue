@@ -32,11 +32,12 @@ const hoveringNode = ref(false);
       :data-node-id="uuid"
       :class="{
         'border-dashed bg-transparent dark:bg-transparent': nodeType == 'root',
+        'border-neutral-300 dark:border-neutral-700 dark:bg-neutral-800': !done && !skip,
         'border-emerald-400 bg-emerald-200 dark:border-emerald-400 dark:bg-emerald-800': done,
         'border-dashed border-yellow-500 bg-transparent text-neutral-900/30 dark:border-yellow-400/50 dark:bg-transparent dark:text-neutral-50/30':
           skip,
       }"
-      class="max-w-xs rounded-md border-2 border-neutral-300 px-3 py-1 dark:border-neutral-700 dark:bg-neutral-800"
+      class="max-w-xs cursor-default rounded-md border-2 px-3 py-1"
     >
       <p class="font-bold">{{ title }}</p>
       <p
