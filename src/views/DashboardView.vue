@@ -1,3 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import TheDashboard from '@/components/TheDashboard.vue';
+</script>
 
-<template>Dashboard View</template>
+<template>
+  <TheDashboard />
+</template>

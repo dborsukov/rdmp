@@ -38,6 +38,8 @@ fn main() {
             cmd::set_skip,
             cmd::load_details,
             cmd::save_details,
+            cmd::load_roadmaps_amount,
+            cmd::load_nodes_amount,
         ])
         .run(tauri::generate_context!())
     {

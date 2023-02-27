@@ -117,4 +117,12 @@ export function saveDetails(uuid: String, details: String): Promise<null> {
   });
 }
 
+export function getRoadmapsAmount(): Promise<number> {
+  return invoke<number>('load_roadmaps_amount');
+}
+
+export function getNodesAmount(): Promise<number> {
+  return invoke<number>('load_nodes_amount');
+}
+
 export {};

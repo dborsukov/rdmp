@@ -4,6 +4,7 @@ use tauri::command;
 
 use crate::db::establish_connection;
 use crate::models;
+use diesel::dsl::not;
 use diesel::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -273,4 +274,28 @@ pub fn save_details(query_uuid: &str, query_string: Option<&str>) -> Result<(), 
         return Err(format!("Failed to update node: {err}"));
     }
     Ok(())
+}
+
+#[command]
+pub fn load_roadmaps_amount() -> Result<i64, String> {
+    use crate::schema::maps::dsl::maps;
+    let conn = &mut establish_connection();
+    match maps.count().get_result(conn) {
+        Ok(amount) => Ok(amount),
+        Err(err) => Err(format!("Failed to count roadmaps: {err}")),
+    }
+}
+
+#[command]
+pub fn load_nodes_amount() -> Result<i64, String> {
+    use crate::schema::nodes::dsl::{node_type, nodes};
+    let conn = &mut establish_connection();
+    match nodes
+        .count()
+        .filter(not(node_type.eq("root")))
+        .get_result(conn)
+    {
+        Ok(amount) => Ok(amount),
+        Err(err) => Err(format!("Failed to count nodes: {err}")),
+    }
 }
