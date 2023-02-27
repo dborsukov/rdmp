@@ -1,8 +1,10 @@
 use log::error;
 use serde::{Deserialize, Serialize};
+use serde_json::{Map, Value};
 use tauri::command;
 
 use crate::db::establish_connection;
+use crate::fs;
 use crate::models;
 use diesel::dsl::not;
 use diesel::prelude::*;
@@ -298,4 +300,28 @@ pub fn load_nodes_amount() -> Result<i64, String> {
         Ok(amount) => Ok(amount),
         Err(err) => Err(format!("Failed to count nodes: {err}")),
     }
+}
+
+#[command]
+pub fn read_settings() -> Result<Map<String, Value>, String> {
+    let settings_string =
+        match std::fs::read_to_string(fs::get_app_base_dir().join("settings.json")) {
+            Ok(path) => path,
+            Err(err) => return Err(format!("Failed to read settings file: {err}")),
+        };
+    match serde_json::from_str(&settings_string) {
+        Ok(map) => Ok(map),
+        Err(err) => Err(format!("Failed to read settings from file: {err}")),
+    }
+}
+
+#[command]
+pub fn write_settings(settings: Map<String, Value>) -> Result<(), String> {
+    if let Err(err) = std::fs::write(
+        fs::get_app_base_dir().join("settings.json"),
+        serde_json::to_string_pretty(&settings).unwrap(),
+    ) {
+        return Err(format!("Failed to write settings: {err}"));
+    };
+    Ok(())
 }

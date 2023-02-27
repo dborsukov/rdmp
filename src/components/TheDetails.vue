@@ -84,8 +84,8 @@ function togglePreview() {
 </script>
 
 <template>
-  <link rel="stylesheet" :href="hljsDarkTheme" :disabled="!store.darkThemeSelected" />
-  <link rel="stylesheet" :href="hljsLightTheme" :disabled="store.darkThemeSelected" />
+  <link rel="stylesheet" :href="hljsDarkTheme" :disabled="!store.settings.darkTheme" />
+  <link rel="stylesheet" :href="hljsLightTheme" :disabled="store.settings.darkTheme" />
   <div class="relative flex h-full w-full justify-center px-14 py-6 dark:bg-neutral-900">
     <div class="flex w-3/4 max-w-5xl flex-col gap-y-3">
       <div class="flex items-center">

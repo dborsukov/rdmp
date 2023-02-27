@@ -23,6 +23,7 @@ pub fn validate() {
             error!("Failed to create settings.json: {err}");
             process::exit(1);
         });
+        std::fs::write(settings_file, r"{}").unwrap()
     };
 }
 

@@ -12,6 +12,7 @@ import ModalConfirm from '@/components/ModalConfirm.vue';
 
 onMounted(() => {
   loadAllRoadmaps();
+  store.readSettingsWrapper();
 });
 
 const router = useRouter();
@@ -63,7 +64,7 @@ async function handleOption(optionAction: string, roadmap: Roadmap) {
   <ModalConfirm ref="modalConfirm" />
   <RoadmapModal ref="modal" />
   <div
-    v-show="store.sidebarExpanded"
+    v-show="store.settings.sidebarExpanded"
     class="flex h-full w-64 flex-shrink-0 flex-col gap-y-2 border-r border-neutral-200 bg-white p-4 text-black dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50"
   >
     <Label>Home</Label>

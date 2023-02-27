@@ -40,6 +40,8 @@ fn main() {
             cmd::save_details,
             cmd::load_roadmaps_amount,
             cmd::load_nodes_amount,
+            cmd::read_settings,
+            cmd::write_settings,
         ])
         .run(tauri::generate_context!())
     {

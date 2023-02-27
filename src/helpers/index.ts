@@ -125,4 +125,13 @@ export function getNodesAmount(): Promise<number> {
   return invoke<number>('load_nodes_amount');
 }
 
+export function writeSettings(): Promise<null> {
+  const store = useGlobalStore();
+  return invoke<null>('write_settings', { settings: store.settings });
+}
+
+export function readSettings(): Promise<any> {
+  return invoke<any>('read_settings');
+}
+
 export {};
