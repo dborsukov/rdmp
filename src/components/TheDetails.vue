@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { useGlobalStore } from '@/stores/global';
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import autosize from 'autosize';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
-import autosize from 'autosize';
-import { useGlobalStore } from '@/stores/global';
+import hljsDarkTheme from 'highlight.js/styles/stackoverflow-dark.css?url';
+import hljsLightTheme from 'highlight.js/styles/stackoverflow-light.css?url';
 import { type Node, loadDetails, saveDetails } from '@/helpers';
 import IconPencil from '@/components/icons/IconPencil.vue';
 import IconEye from '@/components/icons/IconEye.vue';
@@ -82,16 +84,8 @@ function togglePreview() {
 </script>
 
 <template>
-  <link
-    rel="stylesheet"
-    href="/src/assets/stackoverflow-dark.css"
-    :disabled="!store.darkThemeSelected"
-  />
-  <link
-    rel="stylesheet"
-    href="/src/assets/stackoverflow-light.css"
-    :disabled="store.darkThemeSelected"
-  />
+  <link rel="stylesheet" :href="hljsDarkTheme" :disabled="!store.darkThemeSelected" />
+  <link rel="stylesheet" :href="hljsLightTheme" :disabled="store.darkThemeSelected" />
   <div class="relative flex h-full w-full justify-center px-14 py-6 dark:bg-neutral-900">
     <div class="flex w-3/4 max-w-5xl flex-col gap-y-3">
       <div class="flex items-center">
