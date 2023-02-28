@@ -31,6 +31,10 @@ function close() {
         <p>Dark theme</p>
         <Toggle v-model="store.settings.darkTheme" class="ml-auto" />
       </div>
+      <div class="flex">
+        <p>Show numbers next to nodes</p>
+        <Toggle v-model="store.settings.showNumbers" class="ml-auto" />
+      </div>
     </div>
   </ModalBase>
 </template>

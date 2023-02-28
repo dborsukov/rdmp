@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { mount } from 'mount-vue-component';
+import { useGlobalStore } from '@/stores/global';
 import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { loadRoadmap, removeNode, setDone, setSkip, type Node } from '@/helpers';
 import RoadmapNode from '@/components/RoadmapNode.vue';
@@ -26,6 +27,9 @@ watch(() => props.roadmapUuid, render);
 const props = defineProps({
   roadmapUuid: { type: String, required: true },
 });
+
+const store = useGlobalStore();
+watch(() => store.settings.showNumbers, render);
 
 const nodes = ref<Array<Node>>([]);
 
@@ -110,9 +114,18 @@ async function render() {
 }
 
 function buildTree(nodes: Array<Node>, root_el: HTMLElement) {
+  let counter = 0;
   nodes.forEach((node) => {
     let flexWrapper = document.createElement('div');
     flexWrapper.classList.add('my-flex');
+
+    if (node.nodeType != 'child' && store.settings.showNumbers) {
+      let number = document.createElement('p');
+      number.innerText = counter.toString();
+      number.classList.add('numbering');
+      flexWrapper.appendChild(number);
+      counter += 1;
+    }
 
     mount(RoadmapNode, {
       props: {
@@ -320,5 +333,19 @@ html.dark #svg .connection {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+}
+
+#root .numbering {
+  align-self: center;
+  font-size: 1.7rem;
+  font-family: 'RobotoMono', 'monospace';
+}
+
+#root .numbering {
+  color: #d4d4d4;
+}
+
+html.dark #root .numbering {
+  color: #44403c;
 }
 </style>

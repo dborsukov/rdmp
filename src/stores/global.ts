@@ -9,12 +9,14 @@ export const useGlobalStore = defineStore('global', () => {
   const settings = ref<any>({
     darkTheme: true,
     sidebarExpanded: true,
+    showNumbers: true,
   });
 
   function readSettingsWrapper() {
     readSettings().then((r) => {
       settings.value.darkTheme = r.darkTheme != undefined ? r.darkTheme : true;
       settings.value.sidebarExpanded = r.sidebarExpanded != undefined ? r.sidebarExpanded : true;
+      settings.value.showNumbers = r.showNumbers != undefined ? r.showNumbers : true;
     });
   }
 
