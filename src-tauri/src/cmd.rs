@@ -1,12 +1,13 @@
 use log::error;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
+use std::path::PathBuf;
 use tauri::command;
 
 use crate::db::establish_connection;
 use crate::fs;
 use crate::models;
-use diesel::dsl::not;
+use diesel::dsl::{count, not};
 use diesel::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -324,4 +325,96 @@ pub fn write_settings(settings: Map<String, Value>) -> Result<(), String> {
         return Err(format!("Failed to write settings: {err}"));
     };
     Ok(())
+}
+
+#[command]
+pub fn export_roadmap(query_uuid: &str, title: &str, folder: PathBuf) -> Result<(), String> {
+    let file_path = match folder.join(format!("{title}.rdmp")).to_str() {
+        Some(str) => str.to_owned(),
+        None => return Err("Generic error".to_string()),
+    };
+    if let Err(err) = std::fs::copy(fs::get_app_base_dir().join("rdmp.db"), &file_path) {
+        return Err(err.to_string());
+    }
+    let conn = &mut establish_connection();
+    let mut export_conn = match SqliteConnection::establish(&file_path) {
+        Ok(conn) => conn,
+        Err(err) => return Err(err.to_string()),
+    };
+    // delete data
+    use crate::schema::maps::dsl::maps;
+    use crate::schema::nodes::dsl::{nodes, roadmap_uuid};
+    if let Err(err) = diesel::delete(maps).execute(&mut export_conn) {
+        return Err(err.to_string());
+    }
+    if let Err(err) = diesel::delete(nodes).execute(&mut export_conn) {
+        return Err(err.to_string());
+    }
+    // copy roadmap
+    let map = match maps.find(&query_uuid).first::<models::Roadmap>(conn) {
+        Ok(map) => map,
+        Err(err) => return Err(err.to_string()),
+    };
+    if let Err(err) = diesel::insert_into(maps)
+        .values(map)
+        .execute(&mut export_conn)
+    {
+        return Err(err.to_string());
+    };
+    // copy nodes
+    let nodes_list = match nodes
+        .filter(roadmap_uuid.eq(&query_uuid))
+        .load::<models::Node>(conn)
+    {
+        Ok(list) => list,
+        Err(err) => return Err(err.to_string()),
+    };
+    if let Err(err) = diesel::insert_into(nodes)
+        .values(nodes_list)
+        .execute(&mut export_conn)
+    {
+        return Err(err.to_string());
+    };
+    Ok(())
+}
+
+#[command]
+pub fn import_roadmap(path: &str) -> Result<Roadmap, String> {
+    let conn = &mut establish_connection();
+    let mut import_conn = match SqliteConnection::establish(path) {
+        Ok(conn) => conn,
+        Err(err) => return Err(err.to_string()),
+    };
+    // setup
+    use crate::schema::maps::dsl::{maps, uuid};
+    use crate::schema::nodes::dsl::nodes;
+    let map = match maps.first::<models::Roadmap>(&mut import_conn) {
+        Ok(map) => map,
+        Err(err) => return Err(err.to_string()),
+    };
+    // duplicate check
+    let count: i64 = match maps
+        .filter(uuid.eq(&map.uuid))
+        .select(count(uuid))
+        .first(conn)
+    {
+        Ok(count) => count,
+        Err(err) => return Err(err.to_string()),
+    };
+    if count > 0 {
+        return Err("Roadmap you are trying to import already exists".to_string());
+    };
+    // copy roadmap
+    if let Err(err) = diesel::insert_into(maps).values(&map).execute(conn) {
+        return Err(err.to_string());
+    };
+    // copy nodes
+    let nodes_list = match nodes.load::<models::Node>(&mut import_conn) {
+        Ok(list) => list,
+        Err(err) => return Err(err.to_string()),
+    };
+    if let Err(err) = diesel::insert_into(nodes).values(nodes_list).execute(conn) {
+        return Err(err.to_string());
+    };
+    load_roadmap(&map.uuid)
 }

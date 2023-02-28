@@ -134,4 +134,12 @@ export function readSettings(): Promise<any> {
   return invoke<any>('read_settings');
 }
 
+export function exportRoadmap(uuid: string, title: string, folder: string): Promise<null> {
+  return invoke<null>('export_roadmap', { queryUuid: uuid, title: title, folder: folder });
+}
+
+export function importRoadmap(path: string): Promise<Roadmap> {
+  return invoke<Roadmap>('import_roadmap', { path: path });
+}
+
 export {};

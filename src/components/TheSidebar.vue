@@ -1,14 +1,22 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { open } from '@tauri-apps/api/dialog';
 import { useGlobalStore } from '@/stores/global';
-import { loadAllRoadmaps, removeRoadmap, type Roadmap } from '@/helpers';
+import {
+  type Roadmap,
+  loadAllRoadmaps,
+  removeRoadmap,
+  importRoadmap,
+  exportRoadmap,
+} from '@/helpers';
 import Label from '@/components/VLabel.vue';
 import Link from '@/components/SidebarLink.vue';
 import IconPlus from '@/components/icons/IconPlus.vue';
 import RoadmapModal from '@/components/RoadmapModal.vue';
 import ContextMenu from '@/components/ContextMenu.vue';
 import ModalConfirm from '@/components/ModalConfirm.vue';
+import IconArrowDownOnSquare from '@/components/icons/IconArrowDownOnSquare.vue';
 
 onMounted(() => {
   loadAllRoadmaps();
@@ -32,6 +40,7 @@ function showContextMenu(event: MouseEvent, item: any, options: Object[]) {
 
 const options = [
   { name: 'Edit', action: 'edit' },
+  { name: 'Export', action: 'export' },
   { name: 'Delete', action: 'delete' },
 ];
 
@@ -39,6 +48,30 @@ async function handleOption(optionAction: string, roadmap: Roadmap) {
   switch (optionAction) {
     case 'edit': {
       showRoadmapModal('edit', roadmap);
+      break;
+    }
+    case 'export': {
+      const selected_folder: any = await open({
+        directory: true,
+        multiple: false,
+      });
+      if (selected_folder != null) {
+        exportRoadmap(roadmap.uuid, roadmap.title, selected_folder)
+          .then(async () => {
+            await modalConfirm?.value?.show({
+              title: 'Export',
+              message: 'Export finished successfuly',
+              okButton: 'Got it',
+            });
+          })
+          .catch(async (err) => {
+            await modalConfirm?.value?.show({
+              title: 'Export',
+              message: `Export failed: ${err}`,
+              okButton: 'Got it',
+            });
+          });
+      }
       break;
     }
     case 'delete': {
@@ -56,6 +89,37 @@ async function handleOption(optionAction: string, roadmap: Roadmap) {
       }
     }
   }
+}
+
+async function importRoadmapWrapper() {
+  const selected_file = await open({
+    directory: false,
+    multiple: false,
+    filters: [
+      {
+        name: 'Roadmap',
+        extensions: ['rdmp'],
+      },
+    ],
+  });
+  if (!selected_file) return;
+  importRoadmap(selected_file as string)
+    .then(async (new_map) => {
+      await modalConfirm?.value?.show({
+        title: 'Import',
+        message: 'Import finished successfuly',
+        okButton: 'Got it',
+      });
+      loadAllRoadmaps();
+      router.push(`/roadmaps/${new_map.uuid}`);
+    })
+    .catch(async (err) => {
+      await modalConfirm?.value?.show({
+        title: 'Import',
+        message: `Import failed: ${err}`,
+        okButton: 'Got it',
+      });
+    });
 }
 </script>
 
@@ -81,11 +145,19 @@ async function handleOption(optionAction: string, roadmap: Roadmap) {
         >{{ roadmap.title }}</Link
       >
     </div>
-    <button
-      class="flex h-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-lg border border-neutral-200 hover:bg-emerald-500/30 active:bg-emerald-500/40 dark:border-neutral-700 dark:hover:bg-neutral-700 dark:active:bg-neutral-900"
-      @click="showRoadmapModal('create', null)"
-    >
-      <IconPlus class="m-auto h-5 w-5" />
-    </button>
+    <div class="flex flex-shrink-0 gap-2">
+      <button
+        class="flex aspect-square h-10 cursor-pointer items-center justify-center rounded-lg border border-neutral-200 hover:bg-emerald-500/30 active:bg-emerald-500/40 dark:border-neutral-700 dark:hover:bg-neutral-700 dark:active:bg-neutral-900"
+        @click="importRoadmapWrapper()"
+      >
+        <IconArrowDownOnSquare class="h-5 w-5" />
+      </button>
+      <button
+        class="flex h-10 flex-1 cursor-pointer items-center justify-center rounded-lg border border-neutral-200 hover:bg-emerald-500/30 active:bg-emerald-500/40 dark:border-neutral-700 dark:hover:bg-neutral-700 dark:active:bg-neutral-900"
+        @click="showRoadmapModal('create', null)"
+      >
+        <IconPlus class="h-5 w-5" />
+      </button>
+    </div>
   </div>
 </template>

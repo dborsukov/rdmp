@@ -6,6 +6,7 @@ import IconForward from '@/components/icons/IconForward.vue';
 import IconCheck from '@/components/icons/IconCheck.vue';
 import IconEdit from '@/components/icons/IconEdit.vue';
 import IconDocumentText from '@/components/icons/IconDocumentText.vue';
+import IconArrowUpOnSquare from '@/components/icons/IconArrowUpOnSquare.vue';
 
 onMounted(() => {
   document.body.addEventListener('keyup', onEscPressed);
@@ -97,6 +98,7 @@ function onEscPressed(event: KeyboardEvent) {
               <IconCheck v-if="op.name == 'Done'" class="h-4" />
               <IconEdit v-if="op.name == 'Edit'" class="h-4" />
               <IconDocumentText v-if="op.name == 'Details'" class="h-4" />
+              <IconArrowUpOnSquare v-if="op.name == 'Export'" class="h-4" />
               {{ op.name }}
             </div>
           </button>
