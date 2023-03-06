@@ -2,7 +2,7 @@
 import { mount } from 'mount-vue-component';
 import { useGlobalStore } from '@/stores/global';
 import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { loadRoadmap, removeNode, setDone, setSkip, type Node } from '@/helpers';
+import { loadRoadmap, removeNode, setDone, setSkip, squashNodesAround, type Node } from '@/helpers';
 import RoadmapNode from '@/components/RoadmapNode.vue';
 import RoadmapNodeModal from '@/components/RoadmapNodeModal.vue';
 import ModalConfirm from '@/components/ModalConfirm.vue';
@@ -41,9 +41,17 @@ function showRoadmapNodeModal(
   action: 'create' | 'edit',
   existingNode: Node | null,
   nodeType: String,
-  parentNodeUuid: string | null
+  parentNodeUuid: string | null,
+  parentNodeOrder: number | null
 ) {
-  modal?.value?.open(action, existingNode, nodeType, parentNodeUuid, props.roadmapUuid);
+  modal?.value?.open(
+    action,
+    existingNode,
+    nodeType,
+    parentNodeUuid,
+    parentNodeOrder,
+    props.roadmapUuid
+  );
 }
 
 function showContextMenu(event: MouseEvent, item: any, options: Object[]) {
@@ -62,7 +70,7 @@ async function showDetailsPage(node: Node) {
 async function handleOption(optionAction: string, node: Node) {
   switch (optionAction) {
     case 'edit': {
-      showRoadmapNodeModal('edit', node, node.nodeType, null);
+      showRoadmapNodeModal('edit', node, node.nodeType, null, node.nodeOrder);
       break;
     }
     case 'details': {
@@ -94,7 +102,9 @@ async function handleOption(optionAction: string, node: Node) {
         warning: true,
       });
       if (ok) {
-        removeNode(node.uuid).then(render);
+        removeNode(node.uuid)
+          .then(() => squashNodesAround(props.roadmapUuid, node.nodeOrder))
+          .then(render);
         break;
       }
     }
@@ -133,6 +143,7 @@ function buildTree(nodes: Array<Node>, root_el: HTMLElement) {
         title: node.title,
         description: node.description,
         nodeType: node.nodeType,
+        nodeOrder: node.nodeOrder,
         done: node.done,
         skip: node.skip,
         onCreateNode: showRoadmapNodeModal,

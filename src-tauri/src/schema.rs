@@ -14,6 +14,7 @@ diesel::table! {
         title -> Text,
         description -> Text,
         node_type -> Text,
+        node_order -> Integer,
         done -> Bool,
         skip -> Bool,
         details -> Nullable<Text>,

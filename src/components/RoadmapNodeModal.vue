@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { v4 } from 'uuid';
-import { addNode, updateNode, type Node } from '@/helpers';
+import { addNode, updateNode, expandNodesAround, type Node } from '@/helpers';
 import Label from '@/components/VLabel.vue';
 import Input from '@/components/VInput.vue';
 import Button from '@/components/VButton.vue';
@@ -17,9 +17,11 @@ const modalUuid = ref('');
 const modalTitle = ref('');
 const modalDescription = ref('');
 const modalNodeType = ref('');
+const modalNodeOrder = ref(0);
 const modalDone = ref(false);
 const modalSkip = ref(false);
 const modalParentNodeUuid = ref<String | null>('');
+const modalParentNodeOrder = ref(0);
 const modalRoadmapUuid = ref('');
 
 defineExpose({ open });
@@ -29,11 +31,13 @@ function open(
   existingNode: Node | null,
   nodeType: string,
   parentNodeUuid: string | null,
+  parentNodeOrder: number,
   roadmapUuid: string
 ) {
   modalAction.value = action;
   modalNodeType.value = nodeType;
   modalParentNodeUuid.value = parentNodeUuid;
+  modalParentNodeOrder.value = parentNodeOrder;
   modalRoadmapUuid.value = roadmapUuid;
 
   if (existingNode) {
@@ -41,6 +45,7 @@ function open(
     modalTitle.value = existingNode.title;
     modalDescription.value = existingNode.description;
     modalNodeType.value = existingNode.nodeType;
+    modalNodeOrder.value = existingNode.nodeOrder;
     modalDone.value = existingNode.done;
     modalSkip.value = existingNode.skip;
   }
@@ -61,12 +66,18 @@ async function confirm() {
     return;
   }
   if (modalAction.value == 'create') {
+    let new_node_place = 0;
+    if (modalNodeType.value == 'main') {
+      new_node_place = modalParentNodeOrder.value + 1;
+      expandNodesAround(modalRoadmapUuid.value, new_node_place);
+    }
     await addNode(
       {
         uuid: v4(),
         title: modalTitle.value,
         description: modalDescription.value,
         nodeType: modalNodeType.value,
+        nodeOrder: new_node_place,
         done: false,
         skip: false,
         children: [],
@@ -83,6 +94,7 @@ async function confirm() {
       title: modalTitle.value,
       description: modalDescription.value,
       nodeType: modalNodeType.value,
+      nodeOrder: modalNodeOrder.value,
       done: modalDone.value,
       skip: modalSkip.value,
       children: [],

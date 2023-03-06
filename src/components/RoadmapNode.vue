@@ -9,6 +9,7 @@ const props = defineProps({
   title: { type: String, required: true },
   description: { type: String, required: true },
   nodeType: { type: String, required: true },
+  nodeOrder: { type: Number, required: true },
   done: { type: Boolean, required: true },
   skip: { type: Boolean, required: true },
 });
@@ -21,12 +22,12 @@ const hoveringNode = ref(false);
     <IconPlusCircle
       v-if="hoveringNode && (nodeType == 'main' || nodeType == 'root')"
       class="troke-2 absolute -bottom-3 left-1/2 -ml-3 h-6 w-6 cursor-pointer fill-white text-neutral-400 hover:fill-neutral-200 active:-bottom-2 active:-ml-2 active:h-4 active:w-4 dark:fill-neutral-900 dark:hover:fill-neutral-700"
-      @click="$emit('createNode', 'create', null, 'main', null)"
+      @click="$emit('createNode', 'create', null, 'main', null, props.nodeOrder)"
     />
     <IconPlusCircle
       v-if="hoveringNode && nodeType != 'root'"
       class="absolute -right-3 top-1/2 -mt-3 h-6 w-6 cursor-pointer fill-white text-neutral-400 hover:fill-neutral-200 active:-right-2 active:-mt-2 active:h-4 active:w-4 dark:fill-neutral-900 dark:hover:fill-neutral-700"
-      @click="$emit('createNode', 'create', null, 'child', props.uuid)"
+      @click="$emit('createNode', 'create', null, 'child', props.uuid, props.nodeOrder)"
     />
     <div
       :data-node-id="uuid"

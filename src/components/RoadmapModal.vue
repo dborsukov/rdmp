@@ -57,6 +57,7 @@ function confirm() {
             title: 'Start',
             description: '',
             nodeType: 'root',
+            nodeOrder: 0,
             done: false,
             skip: false,
             children: [],

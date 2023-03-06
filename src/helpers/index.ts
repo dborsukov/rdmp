@@ -14,6 +14,7 @@ export type Node = {
   title: string;
   description: string;
   nodeType: string;
+  nodeOrder: number;
   done: boolean;
   skip: boolean;
   children: Array<Node>;
@@ -140,6 +141,14 @@ export function exportRoadmap(uuid: string, title: string, folder: string): Prom
 
 export function importRoadmap(path: string): Promise<Roadmap> {
   return invoke<Roadmap>('import_roadmap', { path: path });
+}
+
+export function expandNodesAround(roadmapUuid: string, around: number): Promise<null> {
+  return invoke<null>('expand_nodes_around', { queryUuid: roadmapUuid, around: around });
+}
+
+export function squashNodesAround(roadmapUuid: string, around: number): Promise<null> {
+  return invoke<null>('squash_nodes_around', { queryUuid: roadmapUuid, around: around });
 }
 
 export {};

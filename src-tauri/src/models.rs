@@ -27,6 +27,8 @@ pub struct Node {
     pub description: String,
     #[diesel(sql_type=Text)]
     pub node_type: String,
+    #[diesel(sql_type=Integer)]
+    pub node_order: i32,
     #[diesel(sql_type=Boolean)]
     pub done: bool,
     #[diesel(sql_type=Boolean)]

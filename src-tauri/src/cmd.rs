@@ -25,6 +25,8 @@ pub struct Node {
     description: String,
     #[serde(rename(serialize = "nodeType", deserialize = "nodeType"))]
     node_type: String,
+    #[serde(rename(serialize = "nodeOrder", deserialize = "nodeOrder"))]
+    node_order: i32,
     done: bool,
     skip: bool,
     details: Option<String>,
@@ -81,11 +83,12 @@ pub fn load_all_roadmaps() -> Result<Vec<Roadmap>, String> {
 }
 
 fn get_main_nodes(conn: &mut SqliteConnection, map: &models::Roadmap) -> Result<Vec<Node>, String> {
-    use crate::schema::nodes::dsl::node_type;
+    use crate::schema::nodes::dsl::{node_order, node_type};
     let mut main_nodes = Vec::new();
 
     let results = match models::Node::belonging_to(map)
         .filter(node_type.eq("main").or(node_type.eq("root")))
+        .order(node_order.asc())
         .load::<models::Node>(conn)
     {
         Ok(list) => list,
@@ -101,6 +104,7 @@ fn get_main_nodes(conn: &mut SqliteConnection, map: &models::Roadmap) -> Result<
             title: node.title.clone(),
             description: node.description.clone(),
             node_type: node.node_type.clone(),
+            node_order: node.node_order,
             done: node.done,
             skip: node.skip,
             details: node.details.clone(),
@@ -112,11 +116,12 @@ fn get_main_nodes(conn: &mut SqliteConnection, map: &models::Roadmap) -> Result<
 }
 
 fn get_child_nodes(conn: &mut SqliteConnection, node: &models::Node) -> Result<Vec<Node>, String> {
-    use crate::schema::nodes::dsl::{nodes, parent_node};
+    use crate::schema::nodes::dsl::{node_order, nodes, parent_node};
     let mut child_nodes = Vec::new();
 
     let results = match nodes
         .filter(parent_node.eq(&node.uuid))
+        .order(node_order.asc())
         .load::<models::Node>(conn)
     {
         Ok(list) => list,
@@ -132,6 +137,7 @@ fn get_child_nodes(conn: &mut SqliteConnection, node: &models::Node) -> Result<V
             title: node.title.clone(),
             description: node.description.clone(),
             node_type: node.node_type.clone(),
+            node_order: node.node_order,
             done: node.done,
             skip: node.skip,
             details: node.details.clone(),
@@ -188,6 +194,7 @@ pub fn add_node(
         title: node.title,
         description: node.description,
         node_type: node.node_type,
+        node_order: node.node_order,
         done: false,
         skip: false,
         details: None,
@@ -417,4 +424,32 @@ pub fn import_roadmap(path: &str) -> Result<Roadmap, String> {
         return Err(err.to_string());
     };
     load_roadmap(&map.uuid)
+}
+
+#[command]
+pub fn expand_nodes_around(query_uuid: &str, around: i32) -> Result<(), String> {
+    use crate::schema::nodes::dsl::{node_order, nodes, roadmap_uuid};
+    let conn = &mut establish_connection();
+    if let Err(err) =
+        diesel::update(nodes.filter((roadmap_uuid.eq(query_uuid)).and(node_order.ge(around))))
+            .set(node_order.eq(node_order + 1))
+            .execute(conn)
+    {
+        return Err(format!("Failed to expand nodes: {err}"));
+    }
+    Ok(())
+}
+
+#[command]
+pub fn squash_nodes_around(query_uuid: &str, around: i32) -> Result<(), String> {
+    use crate::schema::nodes::dsl::{node_order, nodes, roadmap_uuid};
+    let conn = &mut establish_connection();
+    if let Err(err) =
+        diesel::update(nodes.filter((roadmap_uuid.eq(query_uuid)).and(node_order.gt(around))))
+            .set(node_order.eq(node_order - 1))
+            .execute(conn)
+    {
+        return Err(format!("Failed to squash nodes: {err}"));
+    }
+    Ok(())
 }
