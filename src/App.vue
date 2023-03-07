@@ -3,7 +3,20 @@ import TheNavbar from '@/components/TheNavbar.vue';
 import TheSidebar from '@/components/TheSidebar.vue';
 import TheContent from '@/components/TheContent.vue';
 
-//document.addEventListener('contextmenu', (event) => event.preventDefault());
+document.addEventListener('contextmenu', (event) => event.preventDefault());
+document.addEventListener('keydown', (event) => {
+  console.log('event key: ', event.key);
+  if (event.ctrlKey && (event.key === 'r' || event.key === 'p' || event.key === 'f')) {
+    event.preventDefault();
+    return;
+  }
+  if (
+    ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'].includes(event.key)
+  ) {
+    event.preventDefault();
+    return;
+  }
+});
 </script>
 
 <template>
