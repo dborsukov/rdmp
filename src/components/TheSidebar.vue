@@ -137,13 +137,15 @@ async function importRoadmapWrapper() {
     <div
       class="flex flex-grow flex-col gap-y-2 overflow-auto rounded-lg border border-neutral-200 p-2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-50"
     >
-      <Link
-        v-for="roadmap in store.roadmaps"
-        :key="roadmap.uuid"
-        :to="`/roadmaps/${roadmap.uuid}`"
-        @contextmenu.prevent="showContextMenu($event, roadmap, options)"
-        >{{ roadmap.title }}</Link
-      >
+      <transition-group name="roadmaps-list">
+        <Link
+          v-for="roadmap in store.roadmaps"
+          :key="roadmap.uuid"
+          :to="`/roadmaps/${roadmap.uuid}`"
+          @contextmenu.prevent="showContextMenu($event, roadmap, options)"
+          >{{ roadmap.title }}</Link
+        >
+      </transition-group>
     </div>
     <div class="flex flex-shrink-0 gap-2">
       <button
@@ -161,3 +163,25 @@ async function importRoadmapWrapper() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.roadmaps-list-move,
+.roadmaps-list-enter-active,
+.roadmaps-list-leave-active {
+  transition: all 0.3s ease;
+}
+
+.roadmaps-list-leave-active {
+  position: absolute;
+}
+
+.roadmaps-list-enter-from {
+  opacity: 0;
+  transform: translateY(15px);
+}
+
+.roadmaps-list-leave-to {
+  opacity: 0;
+  transform: scale(0);
+}
+</style>

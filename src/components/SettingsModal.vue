@@ -27,12 +27,19 @@ function close() {
       >
         Close
       </p>
-      <div class="flex">
-        <p>Dark theme</p>
+      <div class="flex items-center">
+        <div>
+          <p>Dark theme</p>
+          <p class="text-sm text-neutral-500">Use dark application colors</p>
+        </div>
         <Toggle v-model="store.settings.darkTheme" class="ml-auto" />
       </div>
-      <div class="flex">
-        <p>Show numbers next to nodes</p>
+      <hr class="border-neutral-700" />
+      <div class="flex items-center">
+        <div>
+          <p>Stage numbers</p>
+          <p class="text-sm text-neutral-500">Show numbers next to roadmap stages</p>
+        </div>
         <Toggle v-model="store.settings.showNumbers" class="ml-auto" />
       </div>
     </div>
