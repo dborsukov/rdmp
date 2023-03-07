@@ -35,7 +35,7 @@ const hoveringNode = ref(false);
         'border-dashed bg-transparent dark:bg-transparent': nodeType == 'root',
         'border-gray-300 bg-gray-100 dark:border-neutral-700 dark:bg-neutral-800': !done && !skip,
         'border-emerald-400 bg-emerald-200 dark:border-emerald-400 dark:bg-emerald-800': done,
-        'border-dashed border-yellow-500 bg-transparent text-gray-500 dark:border-yellow-400/50 dark:bg-transparent dark:text-neutral-50/30':
+        'border-dashed border-yellow-500 bg-transparent text-gray-400 dark:border-yellow-400/50 dark:bg-transparent dark:text-neutral-50/30':
           skip,
       }"
       class="max-w-xs cursor-default rounded-md border-2 px-3 py-1"
@@ -45,7 +45,7 @@ const hoveringNode = ref(false);
         v-if="description"
         :class="{
           'text-gray-400 dark:text-neutral-50/80': done,
-          'text-gray-400 dark:text-neutral-50/30': skip,
+          'text-gray-300 dark:text-neutral-50/30': skip,
         }"
         class="text-gray-500 dark:text-neutral-50/50"
       >
