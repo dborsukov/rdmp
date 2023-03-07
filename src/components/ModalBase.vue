@@ -24,7 +24,7 @@ function close() {
       <transition name="slide-fade" @after-leave="showModal = false">
         <div
           v-if="showContent"
-          class="rounded-lg border bg-white p-4 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50"
+          class="rounded-lg border border-gray-300 bg-gray-100 p-4 text-gray-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50"
         >
           <slot></slot>
         </div>

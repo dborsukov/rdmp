@@ -9,6 +9,7 @@ import hljsLightTheme from 'highlight.js/styles/stackoverflow-light.css?url';
 import { type Node, loadDetails, saveDetails } from '@/helpers';
 import IconPencil from '@/components/icons/IconPencil.vue';
 import IconEye from '@/components/icons/IconEye.vue';
+import VIconButton from '@/components/VIconButton.vue';
 
 onMounted(() => {
   const editor = editorArea.value;
@@ -86,28 +87,30 @@ function togglePreview() {
 <template>
   <link rel="stylesheet" :href="hljsDarkTheme" :disabled="!store.settings.darkTheme" />
   <link rel="stylesheet" :href="hljsLightTheme" :disabled="store.settings.darkTheme" />
-  <div class="relative flex h-full w-full justify-center px-14 py-6 dark:bg-neutral-900">
+  <div
+    class="relative flex h-full w-full justify-center bg-gray-100 px-14 py-6 dark:bg-neutral-900"
+  >
     <div class="flex w-3/4 max-w-5xl flex-col gap-y-3">
       <div class="flex items-center">
         <p
-          class="cursor-pointer text-neutral-900/30 hover:underline dark:text-neutral-500"
+          class="cursor-pointer text-gray-400 hover:underline dark:text-neutral-500"
           @click="$emit('close')"
         >
           Go Back
         </p>
-        <div
-          class="ml-auto cursor-pointer text-neutral-900/30 hover:text-neutral-900 dark:text-neutral-50/50 dark:hover:text-neutral-50/80"
+        <VIconButton
+          class="ml-auto text-gray-400 hover:text-gray-500 dark:text-neutral-50/50 dark:hover:text-neutral-50/80"
           @click="togglePreview()"
         >
           <IconPencil v-if="previewActive" class="h-5" />
           <IconEye v-else class="h-5" />
-        </div>
+        </VIconButton>
       </div>
-      <p class="text-2xl font-bold dark:text-neutral-50">{{ detailsNode?.title }}</p>
-      <p class="text-xl text-neutral-900/50 dark:text-neutral-50/70">
+      <p class="text-2xl font-bold text-gray-600 dark:text-neutral-50">{{ detailsNode?.title }}</p>
+      <p class="text-xl text-gray-400 dark:text-neutral-50/70">
         {{ detailsNode?.description }}
       </p>
-      <hr class="border-t border-dashed dark:border-neutral-700" />
+      <hr class="border-t border-dashed border-gray-300 dark:border-neutral-700" />
       <div class="relative mb-6 select-auto">
         <div v-show="previewActive" id="preview" ref="previewDiv"></div>
         <textarea

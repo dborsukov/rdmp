@@ -14,7 +14,7 @@ const store = useGlobalStore();
 <template>
   <SettingsModal ref="modal" />
   <div
-    class="flex h-10 w-full shrink-0 items-center gap-x-2 bg-emerald-700 p-1 text-emerald-50 dark:border-b dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50"
+    class="flex h-10 w-full shrink-0 items-center gap-x-2 border-b border-gray-300 bg-gray-200 p-1 text-gray-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50"
   >
     <VIconButton @click="store.settings.sidebarExpanded = !store.settings.sidebarExpanded">
       <IconBars class="h-5" />

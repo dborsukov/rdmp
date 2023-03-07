@@ -129,13 +129,13 @@ async function importRoadmapWrapper() {
   <RoadmapModal ref="modal" />
   <div
     v-show="store.settings.sidebarExpanded"
-    class="flex h-full w-64 flex-shrink-0 flex-col gap-y-2 border-r border-neutral-200 bg-white p-4 text-black dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50"
+    class="flex h-full w-64 flex-shrink-0 flex-col gap-y-2 border-r border-gray-300 bg-gray-200 p-4 text-gray-800 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50"
   >
     <Label>Home</Label>
     <Link to="/">Dashboard</Link>
     <Label>Roadmaps</Label>
     <div
-      class="flex flex-grow flex-col gap-y-2 overflow-auto rounded-lg border border-neutral-200 p-2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-50"
+      class="flex flex-grow flex-col gap-y-2 overflow-auto rounded-lg border border-gray-300 bg-gray-50 p-2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-50"
     >
       <transition-group name="roadmaps-list">
         <Link
@@ -149,13 +149,13 @@ async function importRoadmapWrapper() {
     </div>
     <div class="flex flex-shrink-0 gap-2">
       <button
-        class="flex aspect-square h-10 cursor-pointer items-center justify-center rounded-lg border border-neutral-200 hover:bg-emerald-500/30 active:bg-emerald-500/40 dark:border-neutral-700 dark:hover:bg-neutral-700 dark:active:bg-neutral-900"
+        class="flex aspect-square h-10 cursor-pointer items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-400/20 active:bg-gray-400/40 dark:border-neutral-700 dark:hover:bg-neutral-700 dark:active:bg-neutral-900"
         @click="importRoadmapWrapper()"
       >
         <IconArrowDownOnSquare class="h-5 w-5" />
       </button>
       <button
-        class="flex h-10 flex-1 cursor-pointer items-center justify-center rounded-lg border border-neutral-200 hover:bg-emerald-500/30 active:bg-emerald-500/40 dark:border-neutral-700 dark:hover:bg-neutral-700 dark:active:bg-neutral-900"
+        class="flex h-10 flex-1 cursor-pointer items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-400/20 active:bg-gray-400/40 dark:border-neutral-700 dark:hover:bg-neutral-700 dark:active:bg-neutral-900"
         @click="showRoadmapModal('create', null)"
       >
         <IconPlus class="h-5 w-5" />

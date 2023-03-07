@@ -325,7 +325,7 @@ html.dark #svg .connection {
 }
 
 #svg .connection {
-  stroke: #d4d4d4;
+  stroke: #d1d5db;
   stroke-width: 0.1em;
 }
 
@@ -353,7 +353,7 @@ html.dark #svg .connection {
 }
 
 #root .numbering {
-  color: #d4d4d4;
+  color: #d1d5db;
 }
 
 html.dark #root .numbering {

@@ -22,7 +22,7 @@ function close() {
   <ModalBase ref="modalBase">
     <div class="flex min-h-[10rem] min-w-[20rem] flex-col gap-y-3">
       <p
-        class="cursor-pointer text-neutral-900/30 hover:underline dark:text-neutral-500"
+        class="cursor-pointer text-gray-400 hover:underline dark:text-neutral-500"
         @click="close()"
       >
         Close
@@ -30,15 +30,17 @@ function close() {
       <div class="flex items-center">
         <div>
           <p>Dark theme</p>
-          <p class="text-sm text-neutral-500">Use dark application colors</p>
+          <p class="text-sm text-gray-500 dark:text-neutral-500">Use dark application colors</p>
         </div>
         <Toggle v-model="store.settings.darkTheme" class="ml-auto" />
       </div>
-      <hr class="border-neutral-700" />
+      <hr class="border-gray-300 dark:border-neutral-700" />
       <div class="flex items-center">
         <div>
           <p>Stage numbers</p>
-          <p class="text-sm text-neutral-500">Show numbers next to roadmap stages</p>
+          <p class="text-sm text-gray-500 dark:text-neutral-500">
+            Show numbers next to roadmap stages
+          </p>
         </div>
         <Toggle v-model="store.settings.showNumbers" class="ml-auto" />
       </div>

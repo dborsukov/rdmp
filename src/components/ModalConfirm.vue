@@ -51,7 +51,7 @@ function _cancel() {
         <Button
           v-if="okButton"
           :class="{
-            'border-red-600 bg-red-500 text-white hover:bg-red-400 active:bg-red-600 dark:border-red-600 dark:bg-red-500 dark:text-neutral-50 dark:hover:bg-red-400 dark:active:bg-red-600':
+            'border-red-600 bg-red-500 text-gray-100 hover:bg-red-500 active:bg-red-500 dark:border-red-600 dark:bg-red-500 dark:text-neutral-50 dark:hover:bg-red-500 dark:active:bg-red-500':
               warning,
           }"
           @click="_confirm"

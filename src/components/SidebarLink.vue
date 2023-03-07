@@ -6,7 +6,9 @@ defineProps({
 </script>
 
 <template>
-  <RouterLink class="truncate rounded-md p-2 hover:bg-zinc-200/50 dark:hover:bg-zinc-700" :to="to"
+  <RouterLink
+    class="truncate rounded-md p-2 ring-emerald-500/30 hover:ring-2 dark:ring-emerald-500/50"
+    :to="to"
     ><slot
   /></RouterLink>
 </template>
