@@ -1,6 +1,6 @@
 <p align="center"><img src="./src-tauri/icons/icon.svg" width="128px"/></p>
 <h1 align="center">rdmp</h1>
-<p>
+<p align="center">
   <img alt="GitHub" src="https://img.shields.io/github/license/dbsdm/rdmp">
   <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/dbsdm/rdmp">
 </p>
