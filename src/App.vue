@@ -5,7 +5,6 @@ import TheContent from '@/components/TheContent.vue';
 
 document.addEventListener('contextmenu', (event) => event.preventDefault());
 document.addEventListener('keydown', (event) => {
-  console.log('event key: ', event.key);
   if (event.ctrlKey && (event.key === 'r' || event.key === 'p' || event.key === 'f')) {
     event.preventDefault();
     return;
