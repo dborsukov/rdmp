@@ -22,7 +22,13 @@ onBeforeUnmount(() => {
   });
 });
 
-watch(() => props.roadmapUuid, render);
+watch(
+  () => props.roadmapUuid,
+  () => {
+    render();
+    detailsActive.value = false;
+  }
+);
 
 const props = defineProps({
   roadmapUuid: { type: String, required: true },
