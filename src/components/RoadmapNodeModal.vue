@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { v4 } from 'uuid';
 import { addNode, updateNode, expandNodesAround, type Node } from '@/helpers';
 import Label from '@/components/VLabel.vue';
@@ -7,11 +7,21 @@ import Input from '@/components/VInput.vue';
 import Button from '@/components/VButton.vue';
 import ModalBase from '@/components/ModalBase.vue';
 
+onMounted(() => {
+  addEventListener('keyup', handleKeys);
+});
+
+function handleKeys(event: KeyboardEvent) {
+  if (event.code == 'Escape') {
+    close();
+  }
+}
+
 const emit = defineEmits(['tree-changed']);
 
 const modalBase = ref();
 const modalAction = ref();
-const incompleteInfo = ref(false);
+const incompleteTitle = ref(false);
 
 const modalUuid = ref('');
 const modalTitle = ref('');
@@ -57,12 +67,12 @@ function close() {
   modalBase?.value?.close();
   modalTitle.value = '';
   modalDescription.value = '';
-  incompleteInfo.value = false;
+  incompleteTitle.value = false;
 }
 
 async function confirm() {
-  if (fieldsEmpty()) {
-    incompleteInfo.value = true;
+  if (modalTitle.value.trim() == '') {
+    incompleteTitle.value = true;
     return;
   }
   if (modalAction.value == 'create') {
@@ -104,20 +114,24 @@ async function confirm() {
   }
   close();
 }
-
-function fieldsEmpty(): Boolean {
-  return modalTitle.value.trim() == '' || modalDescription.value.trim() == '';
-}
 </script>
 
 <template>
   <ModalBase ref="modalBase">
     <div class="flex flex-col gap-y-3">
       <Label>Title</Label>
-      <Input v-model="modalTitle" class="w-96" type="text" />
+      <Input
+        v-model="modalTitle"
+        :class="{
+          'border-red-500 dark:border-red-500': incompleteTitle,
+        }"
+        class="w-96"
+        type="text"
+        @keyup.enter="confirm"
+      />
+      <p v-if="incompleteTitle" class="text-red-500">Title cannot be empty</p>
       <Label>Short description</Label>
-      <Input v-model="modalDescription" class="w-96" type="text" />
-      <p v-if="incompleteInfo" class="text-red-500">Both fields should be filled</p>
+      <Input v-model="modalDescription" class="w-96" type="text" @keyup.enter="confirm" />
       <div class="ml-auto flex gap-x-2">
         <Button v-if="modalAction == 'create'" accent @click="confirm">Create</Button>
         <Button v-if="modalAction == 'edit'" accent @click="confirm">Save</Button>
