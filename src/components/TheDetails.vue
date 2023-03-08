@@ -76,7 +76,18 @@ function handleKeys(event: KeyboardEvent) {
 function togglePreview() {
   if (!previewActive.value) {
     if (previewDiv.value) {
-      previewDiv.value.innerHTML = marked.parse(markdown.value);
+      const renderer = new marked.Renderer();
+      const linkRenderer = renderer.link;
+      renderer.link = (href, title, text) => {
+        const html = linkRenderer.call(renderer, href, title, text);
+        return html.replace(/^<a /, '<a target="_blank" rel="nofollow" ');
+      };
+      let parsedHtml = marked.parse(markdown.value, {
+        gfm: true,
+        breaks: true,
+        renderer,
+      });
+      previewDiv.value.innerHTML = parsedHtml;
     }
     hljs.highlightAll();
   }
@@ -90,7 +101,7 @@ function togglePreview() {
   <div
     class="relative flex h-full w-full justify-center bg-gray-100 px-14 py-6 dark:bg-neutral-900"
   >
-    <div class="flex w-3/4 max-w-5xl flex-col gap-y-3">
+    <div class="flex w-3/4 max-w-3xl flex-col gap-y-3">
       <div class="flex items-center">
         <p
           class="cursor-pointer text-gray-400 hover:underline dark:text-neutral-500"
@@ -128,32 +139,44 @@ function togglePreview() {
 </template>
 
 <style>
+#preview h1,
+#preview h2,
+#preview h3 {
+  margin: 1rem 0;
+  border-bottom: 1px solid #d1d5db;
+}
+html.dark #preview h1,
+html.dark #preview h2,
+html.dark #preview h3 {
+  border-bottom: 1px solid #404040;
+}
 #preview h1 {
   font-size: 1.5rem;
   line-height: 2rem;
-  margin-bottom: 1rem;
 }
 #preview h2 {
   font-size: 1.25rem;
   line-height: 1.75rem;
-  margin-bottom: 1rem;
 }
 #preview h3 {
   font-size: 1.125rem;
   line-height: 1.75rem;
-  margin-bottom: 1rem;
+}
+#preview p {
+  margin: 1rem 0;
 }
 #preview ul {
-  margin-left: 1rem;
-  margin-bottom: 1rem;
+  margin: 1rem 0 1rem 1rem;
   list-style-type: disc;
-  list-style-position: inside;
+  list-style-position: outsise;
 }
 #preview ol {
-  margin-left: 1rem;
-  margin-bottom: 1rem;
+  margin: 1rem 0 1rem 1rem;
   list-style-type: decimal;
-  list-style-position: inside;
+  list-style-position: outside;
+}
+li {
+  margin: 0.5rem 0;
 }
 #preview code {
   margin: 1rem 0;
@@ -162,5 +185,27 @@ function togglePreview() {
 html.dark #preview code {
   margin: 1rem 0;
   border: 1px solid #404040;
+}
+#preview hr {
+  border: 1px dashed #d1d5db;
+}
+html.dark #preview hr {
+  border: 1px dashed #404040;
+}
+#preview blockquote {
+  margin: 1rem 0;
+  padding: 0 0.5rem;
+  border-left: 0.5rem solid #34d399;
+}
+html.dark #preview blockquote {
+  border-left: 0.5rem solid #065f46;
+}
+#preview a:link,
+#preview a:visited {
+  color: #059669;
+  text-decoration: none;
+}
+#preview a:hover {
+  text-decoration: underline;
 }
 </style>
