@@ -10,7 +10,7 @@
 
 - Basic management of roadmaps and nodes.
 - Export and import for individual roadmaps.
-- Each node can hold more details inside in form of a markdown with preview.
+- Each node can hold more details inside in form of a markdown with preview ([example](./s2.png)).
 
 # Planned features
 
